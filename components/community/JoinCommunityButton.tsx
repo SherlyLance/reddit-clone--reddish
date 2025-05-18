@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { joinCommunity, leaveCommunity, isCommunityMember } from "@/action/communityMembership";
 import { useToast } from "@/components/ui/use-toast";
 
 interface JoinCommunityButtonProps {
@@ -21,7 +20,9 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
   useEffect(() => {
     const checkMembership = async () => {
       if (user) {
-        const membershipStatus = await isCommunityMember(communityId);
+        const res = await fetch(`/api/community/${communityId}/membership`);
+        const data = await res.json();
+        const membershipStatus = data.isMember;
         setIsMember(membershipStatus);
       }
     };
@@ -41,7 +42,8 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
     setIsLoading(true);
     try {
       if (isMember) {
-        const result = await leaveCommunity(communityId);
+        const res = await fetch(`/api/community/${communityId}/leave`, { method: 'POST' });
+        const result = await res.json();
         if (result.error) {
           throw new Error(result.error);
         }
@@ -51,7 +53,8 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
           description: "You have successfully left the community",
         });
       } else {
-        const result = await joinCommunity(communityId);
+        const res = await fetch(`/api/community/${communityId}/join`, { method: 'POST' });
+        const result = await res.json();
         if (result.error) {
           throw new Error(result.error);
         }

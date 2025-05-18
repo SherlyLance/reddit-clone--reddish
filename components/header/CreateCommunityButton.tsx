@@ -15,7 +15,6 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { createCommunity } from "@/action/createCommunity";
 import { useRouter } from "next/navigation";
 
 function CreateCommunityButton() {
@@ -114,14 +113,19 @@ function CreateCommunityButton() {
           fileType = imageFile.type;
         }
 
-        const result = await createCommunity(
-          name.trim(),
-          imageBase64,
-          fileName,
-          fileType,
-          slug.trim(),
-          description.trim() || undefined
-        );
+        const res = await fetch('/api/community', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            slug: slug.trim(),
+            description: description.trim() || undefined,
+            imageBase64,
+            imageFilename: fileName,
+            imageContentType: fileType,
+          }),
+        });
+        const result = await res.json();
 
         console.log("Community created:", result);
 
