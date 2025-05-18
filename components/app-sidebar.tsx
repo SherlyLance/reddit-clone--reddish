@@ -44,26 +44,14 @@ export async function AppSidebar({
     <Sidebar className={`bg-background border-r border-border ${className}`} {...props}>
       <SidebarHeader className="border-b border-border">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <NextImage
-                  src={ReddishLogo}
-                  alt="logo"
-                  width={150}
-                  height={150}
-                  className="object-contain"
-                />
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {/* The following SidebarMenuItem containing the logo will be removed. */}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild className="group-data-[collapsible=icon]:hidden">
                 <CreateCommunityButton />
               </SidebarMenuButton>
 

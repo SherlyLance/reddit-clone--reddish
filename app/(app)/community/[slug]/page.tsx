@@ -2,7 +2,7 @@ import Post from "@/components/post/Post";
 import { urlFor } from "@/sanity/lib/image";
 import { getPostsForSubreddit } from "@/sanity/lib/subreddit/getPostsForSubreddit";
 import { getSubredditBySlug } from "@/sanity/lib/subreddit/getSubredditBySlug";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { getCommunityMembers } from "@/action/communityMembership";
@@ -12,6 +12,7 @@ async function CommunityPage({
 }: {
   params: { slug: string };
 }) {
+  const { userId } = await auth();
   const community = await getSubredditBySlug(slug);
   if (!community) return null;
 
@@ -57,7 +58,7 @@ async function CommunityPage({
       {/* Posts */}
       <div className="space-y-4">
         {posts.length > 0 ? (
-          posts.map((post) => <Post key={post._id} post={post} />)
+          posts.map((post) => <Post key={post._id} post={post} userId={userId} />)
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center">
             <p className="text-gray-500">No posts in this community yet.</p>

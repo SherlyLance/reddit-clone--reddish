@@ -26,11 +26,14 @@ import {
 } from "@/components/ui/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
+const SIDEBAR_WIDTH_COOKIE_NAME = "sidebar_width_preference"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
+const DEFAULT_SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
+const MIN_SIDEBAR_WIDTH_PX = 160 // 10rem
+const MAX_SIDEBAR_WIDTH_PX = 480 // 30rem
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
@@ -40,6 +43,11 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  sidebarWidth: string
+  setSidebarWidth: (width: string) => void
+  isResizing: boolean
+  setIsResizing: (resizing: boolean) => void
+  side: "left" | "right"
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -57,6 +65,7 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
+  initialSide = "left",
   className,
   style,
   children,
@@ -65,6 +74,7 @@ function SidebarProvider({
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  initialSide?: "left" | "right"
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -73,6 +83,8 @@ function SidebarProvider({
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
+  const side = initialSide
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
@@ -87,6 +99,26 @@ function SidebarProvider({
     },
     [setOpenProp, open]
   )
+
+  // New: State for sidebar width
+  const [sidebarWidth, _setSidebarWidth] = React.useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const savedWidth = localStorage.getItem(SIDEBAR_WIDTH_COOKIE_NAME)
+      return savedWidth || DEFAULT_SIDEBAR_WIDTH
+    }
+    return DEFAULT_SIDEBAR_WIDTH
+  })
+
+  // New: Function to set sidebar width and save to localStorage
+  const setSidebarWidth = React.useCallback((width: string) => {
+    _setSidebarWidth(width)
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SIDEBAR_WIDTH_COOKIE_NAME, width)
+    }
+  }, [])
+
+  // New: State for isResizing
+  const [isResizing, setIsResizing] = React.useState(false)
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
@@ -122,8 +154,26 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      sidebarWidth,
+      setSidebarWidth,
+      isResizing,
+      setIsResizing,
+      side,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      sidebarWidth,
+      setSidebarWidth,
+      isResizing,
+      setIsResizing,
+      side,
+    ]
   )
 
   return (
@@ -133,13 +183,13 @@ function SidebarProvider({
           data-slot="sidebar-wrapper"
           style={
             {
-              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width": sidebarWidth,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+            "group/sidebar-wrapper flex flex-col h-svh w-full has-data-[variant=inset]:bg-sidebar",
             className
           )}
           {...props}
@@ -163,7 +213,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const { isMobile, state, openMobile, setOpenMobile, isResizing } = useSidebar()
 
   if (collapsible === "none") {
     return (
@@ -218,7 +268,7 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-400 ease-out",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -229,11 +279,11 @@ function Sidebar({
       <div
         data-slot="sidebar-container"
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "relative z-10 hidden h-full md:flex",
+          isResizing ? "transition-[left,right] duration-400 ease-out" : "transition-[left,right,width] duration-400 ease-out",
           side === "left"
-            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-            : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adjust the padding for floating and inset variants.
+            ? "left-0 group-data-[collapsible=offcanvas]:-ml-[var(--sidebar-width)]"
+            : "right-0 group-data-[collapsible=offcanvas]:-mr-[var(--sidebar-width)]",
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
@@ -280,23 +330,70 @@ function SidebarTrigger({
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
-  const { toggleSidebar } = useSidebar()
+  const { setSidebarWidth, isMobile, side, setIsResizing } = useSidebar()
+  const railRef = React.useRef<HTMLButtonElement>(null)
+
+  const handleMouseDown = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (isMobile) return
+      e.preventDefault()
+      setIsResizing(true)
+      document.body.style.userSelect = "none"
+      document.body.style.cursor = side === "left" ? "ew-resize" : "ew-resize"
+
+      const startX = e.clientX
+      const sidebarElement = railRef.current?.closest('[data-slot="sidebar-container"]')
+      if (!sidebarElement) return
+
+      const initialWidth = sidebarElement.clientWidth
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        let newWidth
+        if (side === "left") {
+          newWidth = initialWidth + (moveEvent.clientX - startX)
+        } else {
+          newWidth = initialWidth - (moveEvent.clientX - startX)
+        }
+
+        // Apply constraints
+        newWidth = Math.max(MIN_SIDEBAR_WIDTH_PX, Math.min(newWidth, MAX_SIDEBAR_WIDTH_PX))
+        setSidebarWidth(`${newWidth}px`)
+      }
+
+      const handleMouseUp = () => {
+        document.body.style.userSelect = ""
+        document.body.style.cursor = ""
+        window.removeEventListener("mousemove", handleMouseMove)
+        window.removeEventListener("mouseup", handleMouseUp)
+        setIsResizing(false)
+      }
+
+      window.addEventListener("mousemove", handleMouseMove)
+      window.addEventListener("mouseup", handleMouseUp)
+    },
+    [isMobile, setSidebarWidth, side, setIsResizing]
+  )
+
+  // The existing onClick for toggleSidebar might conflict or be confusing with drag-to-resize.
+  // For now, drag-to-resize will be the primary interaction for the rail on desktop.
+  // The toggleSidebar functionality is still available via keyboard shortcut and the SidebarTrigger.
 
   return (
     <button
+      ref={railRef}
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label="Resize Sidebar"
       tabIndex={-1}
-      onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      onMouseDown={handleMouseDown}
+      title="Resize Sidebar"
       className={cn(
-        "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
-        "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
-        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
+        "hover:after:bg-sidebar-border absolute top-0 bottom-0 z-20 hidden w-4 -translate-x-1/2 ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
+        "cursor-ew-resize",
         "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
         "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
+        "transition-none",
         className
       )}
       {...props}
@@ -427,7 +524,6 @@ function SidebarGroupAction({
       data-sidebar="group-action"
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 md:after:hidden",
         "group-data-[collapsible=icon]:hidden",
         className
@@ -562,7 +658,6 @@ function SidebarMenuAction({
       data-sidebar="menu-action"
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 md:after:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",

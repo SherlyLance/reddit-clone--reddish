@@ -30,36 +30,40 @@ function Header() {
 
   return (
     <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-      {/* Left Side */}
-      <div className="h-10 flex items-center">
-        {open && !isMobile ? (
-          <ChevronLeftIcon className="w-6 h-6 cursor-pointer" onClick={toggleSidebar} />
-        ) : (
-          <div className="flex items-center gap-2">
-            <MenuIcon className="w-6 h-6 cursor-pointer" onClick={toggleSidebar} />
-            {!isSearchOpen && (
-              <>
-                <Link href="/">
-                  <Image
-                    src={ReddishLogo}
-                    alt="logo"
-                    width={150}
-                    height={150}
-                    className="hidden md:block cursor-pointer"
-                  />
-                </Link>
-                <Link href="/">
-                  <Image
-                    src={ReddishLogoOnly}
-                    alt="logo"
-                    width={40}
-                    height={40}
-                    className="block md:hidden cursor-pointer"
-                  />
-                </Link>
-              </>
+      {/* Left Side - Restructured */}
+      <div className="h-10 flex items-center gap-2">
+        {/* Toggle Button -  Handles its own icon state based on sidebar's open state (and potentially isMobile) */}
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="p-0 h-6 w-6 md:h-auto md:w-auto">
+            {open && !isMobile ? (
+                <ChevronLeftIcon className="h-6 w-6" />
+            ) : (
+                <MenuIcon className="h-6 w-6" />
             )}
-          </div>
+        </Button>
+
+        {/* Logos - Rendered unless search is open, responsive classes handle md/sm visibility */}
+        {!isSearchOpen && (
+          <>
+            <Link href="/">
+              <Image
+                src={ReddishLogo}
+                alt="logo"
+                width={150}
+                height={150}
+                className="hidden md:block cursor-pointer h-auto"
+                style={{ width: '100px', height: 'auto' }} // Example fixed width for consistency
+              />
+            </Link>
+            <Link href="/">
+              <Image
+                src={ReddishLogoOnly}
+                alt="logo"
+                width={32} // Adjusted for a slightly smaller icon logo if desired
+                height={32}
+                className="block md:hidden cursor-pointer h-auto"
+              />
+            </Link>
+          </>
         )}
       </div>
 

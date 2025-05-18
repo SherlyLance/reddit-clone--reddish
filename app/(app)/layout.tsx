@@ -48,17 +48,18 @@ export default function RootLayout({
           />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground flex flex-col h-svh`}
           suppressHydrationWarning
         >
           <ThemeProvider>
             <SidebarProvider>
-              <AppSidebar className="dark:bg-gray-900" />
-
-              <SidebarInset>
-                <Header />
-                <div className="flex flex-col">{children}</div>
-              </SidebarInset>
+              <Header />
+              <div className="flex flex-1 overflow-hidden">
+                <AppSidebar className="dark:bg-gray-900" />
+                <SidebarInset className="flex-1 overflow-y-auto px-4 pb-4 pt-0 md:px-6 md:pb-6 md:pt-0">
+                  <div className="flex flex-col">{children}</div>
+                </SidebarInset>
+              </div>
             </SidebarProvider>
 
             <SanityLive />

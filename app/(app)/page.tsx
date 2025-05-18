@@ -5,17 +5,18 @@ import { getHotPosts } from "@/sanity/lib/post/getHotPosts";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { auth } from "@clerk/nextjs/server";
 
 // Reusable component to display a list of posts
 // This could replace the existing PostsList or be a new, simpler component
-function DisplayPosts({ posts }: { posts: any[] }) {
+function DisplayPosts({ posts, userId }: { posts: any[]; userId: string | null }) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts found.</p>;
   }
   return (
     <div className="flex flex-col gap-4">
       {posts.map((post) => (
-        <Post key={post._id} post={post} />
+        <Post key={post._id} post={post} userId={userId} />
       ))}
     </div>
   );
@@ -26,6 +27,7 @@ export default async function Home({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
+  const { userId } = await auth();
   const sort = searchParams?.sort || "new";
   let posts = [];
   let pageTitle = "Recent posts from all communities";
@@ -58,7 +60,7 @@ export default async function Home({
     <>
       {/* Banner */}
       <section className="bg-background border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 py-6">
+        <div className="mx-auto max-w-7xl px-2 py-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Home</h1>
@@ -78,7 +80,7 @@ export default async function Home({
       {/* Posts */}
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
-          <DisplayPosts posts={posts} />
+          <DisplayPosts posts={posts} userId={userId} />
         </div>
       </section>
     </>
