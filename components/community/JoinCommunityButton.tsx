@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import baseUrl from "@/lib/baseUrl";
 
 interface JoinCommunityButtonProps {
   communityId: string;
@@ -22,11 +21,10 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
     const checkMembership = async () => {
       if (user) {
         try {
-          const res = await fetch(`${baseUrl}/api/community/${communityId}/membership`);
+          const res = await fetch(`/api/community/${communityId}/membership`, { credentials: 'include' });
           if (!res.ok) throw new Error('Failed to check membership status');
           const data = await res.json();
-          const membershipStatus = data.isMember;
-          setIsMember(membershipStatus);
+          setIsMember(data.isMember);
         } catch (error) {
           console.error('Error checking membership:', error);
           toast({
@@ -55,19 +53,21 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
       let response;
       if (isMember) {
         // Leave community
-        response = await fetch(`${baseUrl}/api/community/${communityId}/leave`, {
+        response = await fetch(`/api/community/${communityId}/leave`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
+          credentials: 'include',
         });
       } else {
         // Join community
-        response = await fetch(`${baseUrl}/api/community/${communityId}/join`, {
+        response = await fetch(`/api/community/${communityId}/join`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
+          credentials: 'include',
         });
       }
 
