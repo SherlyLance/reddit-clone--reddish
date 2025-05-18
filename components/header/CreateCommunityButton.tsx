@@ -15,13 +15,12 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { createCommunity } from "@/action/createCommunity";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/use-toast";
-import baseUrl from "@/lib/baseUrl";
 
 function CreateCommunityButton() {
   const { user } = useUser();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -31,7 +30,6 @@ function CreateCommunityButton() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -77,7 +75,7 @@ function CreateCommunityButton() {
     setName("");
     setSlug("");
     setDescription("");
-    setErrorMessage(null);
+    setErrorMessage("");
     setImagePreview(null);
     setImageFile(null);
     if (fileInputRef.current) {
@@ -98,8 +96,7 @@ function CreateCommunityButton() {
       return;
     }
 
-    setErrorMessage(null);
-    setIsLoading(true);
+    setErrorMessage("");
 
     startTransition(async () => {
       try {
@@ -117,46 +114,27 @@ function CreateCommunityButton() {
           fileType = imageFile.type;
         }
 
-        const response = await fetch(`${baseUrl}/api/community`, {
-          method: "POST",
-          credentials: 'include',
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name.trim(),
-            imageBase64,
-            imageFilename: fileName,
-            imageContentType: fileType,
-            slug: slug.trim(),
-            description: description.trim(),
-          }),
-        });
+        const result = await createCommunity(
+          name.trim(),
+          imageBase64,
+          fileName,
+          fileType,
+          slug.trim(),
+          description.trim() || undefined
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to create community");
+        console.log("Community created:", result);
+
+        if ("error" in result && result.error) {
+          setErrorMessage(result.error);
+        } else if ("subreddit" in result && result.subreddit) {
+          setOpen(false);
+          resetForm();
+          router.push(`/community/${result.subreddit.slug?.current}`);
         }
-
-        const { subreddit } = await response.json();
-        
-        toast({
-          title: "Community created",
-          description: `r/${subreddit.slug} has been created successfully!`,
-        });
-
-        setOpen(false);
-        router.push(`/community/${subreddit.slug}`);
-        router.refresh();
-      } catch (error) {
-        console.error("Create community error:", error);
-        toast({
-          title: "Failed to create community",
-          description: error instanceof Error ? error.message : "An unexpected error occurred",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+      } catch (err) {
+        console.error("Failed to create community", err);
+        setErrorMessage("Failed to create community");
       }
     });
   };

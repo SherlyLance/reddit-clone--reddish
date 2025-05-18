@@ -2,7 +2,7 @@ import {
   GetCommentRepliesQueryResult,
   GetPostCommentsQueryResult,
 } from "@/sanity.types";
-import CommentWithReplies from "./CommentWithReplies";
+import Comment from "./Comment";
 
 async function CommentList({
   postId,
@@ -28,7 +28,7 @@ async function CommentList({
       <div className="divide-y divide-border rounded-lg bg-card">
         {comments.length > 0 ? (
           comments.map((comment) => (
-            <CommentWithReplies
+            <Comment
               key={comment._id}
               postId={postId}
               comment={comment}

@@ -6,9 +6,10 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
+import { GetAllPostsQueryResult } from "@/sanity.types";
 
 // Reusable component to display a list of posts
-function DisplayPosts({ posts, userId }: { posts: any[]; userId: string | null }) {
+function DisplayPosts({ posts, userId }: { posts: GetAllPostsQueryResult; userId: string | null }) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts found.</p>;
   }
@@ -21,14 +22,14 @@ function DisplayPosts({ posts, userId }: { posts: any[]; userId: string | null }
   );
 }
 
-// Use the standard Next.js App Router page props pattern
-export const dynamic = 'force-dynamic';
-
-export default async function Home(props: any) {
-  const { searchParams = {} } = props;
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const { userId } = await auth();
-  const sort = searchParams.sort || "new";
-  let posts: any[] = [];
+  const sort = searchParams?.sort || "new";
+  let posts = [];
   let pageTitle = "Recent posts from all communities";
 
   try {
@@ -59,15 +60,15 @@ export default async function Home(props: any) {
     <>
       {/* Banner */}
       <section className="bg-background border-b border-border">
-        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+        <div className="mx-auto max-w-7xl px-2 py-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Home</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <h1 className="text-2xl font-bold text-foreground">Home</h1>
+              <p className="text-sm text-muted-foreground">
                 {pageTitle}
               </p>
             </div>
-            <div className="mt-3 sm:mt-0 flex items-center gap-1 sm:gap-2 flex-wrap">
+            <div className="mt-4 sm:mt-0 flex items-center gap-1 sm:gap-2 flex-wrap">
               <Link href="/?sort=new" className={getSortLinkClass("new")}>New</Link>
               <Link href="/?sort=popular" className={getSortLinkClass("popular")}>Popular</Link>
               <Link href="/?sort=hot" className={getSortLinkClass("hot")}>Hot</Link>
@@ -77,8 +78,8 @@ export default async function Home(props: any) {
       </section>
 
       {/* Posts */}
-      <section className="my-4 sm:my-6 md:my-8">
-        <div className="container mx-auto px-2 sm:px-4 md:px-6">
+      <section className="my-8">
+        <div className="mx-auto max-w-7xl px-4">
           <DisplayPosts posts={posts} userId={userId} />
         </div>
       </section>
