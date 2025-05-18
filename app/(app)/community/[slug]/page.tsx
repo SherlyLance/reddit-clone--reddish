@@ -11,10 +11,9 @@ interface CommunityPageProps {
   params: {
     slug: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default async function CommunityPage({ params, searchParams }: CommunityPageProps) {
+export default async function CommunityPage({ params }: CommunityPageProps) {
   const { slug } = params;
   const { userId } = await auth();
   const community = await getSubredditBySlug(slug);
@@ -32,9 +31,7 @@ export default async function CommunityPage({ params, searchParams }: CommunityP
             <Image
               className="w-16 h-16 rounded-full"
               src={urlFor(community.image).url()}
-              alt={
-                community.image.alt || `${community.title} community icon`
-              }
+              alt={community.image.alt || `${community.title} community icon`}
               width={64}
               height={64}
             />
@@ -64,7 +61,9 @@ export default async function CommunityPage({ params, searchParams }: CommunityP
       {/* Posts */}
       <div className="space-y-4">
         {posts.length > 0 ? (
-          posts.map((post) => <Post key={post._id} post={post} userId={userId} />)
+          posts.map((post) => (
+            <Post key={post._id} post={post} userId={userId} />
+          ))
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center">
             <p className="text-gray-500">No posts in this community yet.</p>
