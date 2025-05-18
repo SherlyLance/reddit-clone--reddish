@@ -17,6 +17,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
+import baseUrl from "@/lib/baseUrl";
 
 function CreateCommunityButton() {
   const { user } = useUser();
@@ -116,7 +117,7 @@ function CreateCommunityButton() {
           fileType = imageFile.type;
         }
 
-        const response = await fetch(`/api/community`, {
+        const response = await fetch(`${baseUrl}/api/community`, {
           method: "POST",
           credentials: 'include',
           headers: {
