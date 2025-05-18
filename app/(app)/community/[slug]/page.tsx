@@ -7,13 +7,14 @@ import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { getCommunityMembers } from "@/action/communityMembership";
 import { currentUser } from "@clerk/nextjs/server";
+import { type NextPage } from "next";
 
-async function CommunityPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+interface CommunityPageProps {
+  params: { slug: string };
+}
+
+const CommunityPage: NextPage<CommunityPageProps> = async ({ params }) => {
+  const { slug } = params;
   const { userId } = await auth();
 
   const community = await getSubredditBySlug(slug);
@@ -33,6 +34,8 @@ async function CommunityPage({
               className="w-16 h-16 rounded-full"
               src={urlFor(community.image).url()}
               alt={community.image.alt || `${community.title} community icon`}
+              width={64}
+              height={64}
             />
           )}
           <div className="flex-1">
@@ -45,7 +48,6 @@ async function CommunityPage({
                 {community.description}
               </p>
             )}
-            
           </div>
         </div>
       </div>
@@ -64,4 +66,6 @@ async function CommunityPage({
       </div>
     </div>
   );
-}
+};
+
+export default CommunityPage;
