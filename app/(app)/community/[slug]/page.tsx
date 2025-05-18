@@ -7,11 +7,15 @@ import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { getCommunityMembers } from "@/action/communityMembership";
 
-async function CommunityPage({
-  params: { slug },
-}: {
+// Define props type for the page component
+interface CommunityPageProps {
   params: { slug: string };
-}) {
+  // searchParams could be added here if the page uses them, e.g.:
+  // searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+async function CommunityPage({ params }: CommunityPageProps) { // Use the defined props type
+  const { slug } = params; // Destructure slug from params
   const { userId } = await auth();
   const community = await getSubredditBySlug(slug);
   if (!community) return null;
