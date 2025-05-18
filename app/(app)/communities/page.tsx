@@ -3,7 +3,6 @@ import Link from "next/link";
 // import { buttonVariants } from "@/components/ui/button"; // Not used directly, cn is used for potential future button
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListIcon, UsersIcon as CommunitiesIcon } from "lucide-react"; // Using UsersIcon as a more general communities icon
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -12,7 +11,7 @@ interface Subreddit {
   _id: string;
   title?: string | null;
   slug?: string | null;
-  image?: any; // Or a more specific Sanity image type
+  image?: object; // Changed from any to object for better type safety
   memberCount?: number | null;
   description?: string | null;
 }

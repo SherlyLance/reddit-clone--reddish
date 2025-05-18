@@ -25,12 +25,14 @@ async function CommunityPage({
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
         <div className="flex items-center gap-4">
           {community?.image && community.image.asset?._ref && (
-            <img
+            <Image
               className="w-16 h-16 rounded-full"
               src={urlFor(community.image).url()}
               alt={
                 community.image.alt || `${community.title} community icon`
               }
+              width={64}
+              height={64}
             />
           )}
           <div className="flex-1">

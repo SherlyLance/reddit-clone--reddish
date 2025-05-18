@@ -14,6 +14,32 @@ const truncateText = (text: string | null | undefined, maxLength: number): strin
   return text.substring(0, maxLength) + "...";
 };
 
+// Define basic types for search results to avoid 'any'
+interface CommunityResult {
+  _id: string;
+  slug?: string | null;
+  title?: string | null;
+  description?: string | null;
+}
+
+interface PostResult {
+  _id: string;
+  slug?: string | null;
+  title?: string | null;
+  communitySlug?: string | null;
+  communityTitle?: string | null;
+  authorUsername?: string | null;
+  publishedAt?: string | null;
+  excerpt?: string | null; // Assuming truncateText works on 'excerpt' or similar field
+}
+
+interface UserResult {
+  _id: string;
+  username?: string | null;
+  name?: string | null;
+  image?: string | null;
+}
+
 export default async function SearchResultsPage({
   searchParams,
 }: {
@@ -74,7 +100,7 @@ export default async function SearchResultsPage({
                     <ListIcon className="mr-2 h-5 w-5" /> Communities
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {communities.map((community: any) => (
+                    {communities.map((community: CommunityResult) => (
                       <Link key={community._id} href={`/community/${community.slug}`} legacyBehavior passHref>
                         <a className="block hover:no-underline">
                           <Card className="h-full hover:shadow-md transition-shadow duration-150 ease-in-out">
@@ -102,7 +128,7 @@ export default async function SearchResultsPage({
                     <FileTextIcon className="mr-2 h-5 w-5" /> Posts
                   </h2>
                   <div className="space-y-4">
-                    {posts.map((post: any) => (
+                    {posts.map((post: PostResult) => (
                       <Link 
                         key={post._id} 
                         href={`/community/${post.communitySlug}/post/${post.slug}`}
@@ -139,7 +165,7 @@ export default async function SearchResultsPage({
                     <UserIcon className="mr-2 h-5 w-5" /> Users
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {users.map((user: any) => (
+                    {users.map((user: UserResult) => (
                       <Card key={user._id} className="text-center">
                         <CardContent className="pt-6 flex flex-col items-center">
                            <Image

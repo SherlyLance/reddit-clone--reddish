@@ -6,10 +6,10 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
+import { GetAllPostsQueryResult } from "@/sanity.types";
 
 // Reusable component to display a list of posts
-// This could replace the existing PostsList or be a new, simpler component
-function DisplayPosts({ posts, userId }: { posts: any[]; userId: string | null }) {
+function DisplayPosts({ posts, userId }: { posts: GetAllPostsQueryResult; userId: string | null }) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts found.</p>;
   }

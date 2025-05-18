@@ -18,8 +18,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import NextImage from "next/image";
-import ReddishLogo from "@/images/Reddish Full.png";
 import Link from "next/link";
 import { getSubreddits } from "@/sanity/lib/subreddit/getSubreddits";
 import CreateCommunityButton from "./header/CreateCommunityButton";
@@ -30,7 +28,7 @@ interface Subreddit {
   _id: string;
   title?: string | null;
   slug?: string | null;
-  image?: any;
+  image?: object;
   memberCount?: number | null;
 }
 
