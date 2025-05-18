@@ -1,13 +1,18 @@
 import { defineQuery } from "next-sanity";
 import { adminClient } from "../adminClient";
 import { sanityFetch } from "../live";
-import { updatePostCalculatedFields } from "./utils"; // Import the shared utility
+import { updatePostCalculatedFields } from "./utils";
+
+// Define a unique query name for upvote-specific vote check
+export const upvoteExistingVoteQuery = defineQuery(
+  `*[_type == "vote" && post._ref == $postId && user._ref == $userId][0]`
+);
 
 export async function upvotePost(postId: string, userId: string) {
-  const existingVoteQuery = defineQuery(
-    `*[_type == "vote" && post._ref == $postId && user._ref == $userId][0]`
-  );
-  const existingVoteResult = await sanityFetch({ query: existingVoteQuery, params: { postId, userId }});
+  const existingVoteResult = await sanityFetch({
+    query: upvoteExistingVoteQuery,
+    params: { postId, userId },
+  });
   const existingVote = existingVoteResult.data;
 
   let operationCompleted = false;
@@ -35,7 +40,7 @@ export async function upvotePost(postId: string, userId: string) {
   }
 
   if (operationCompleted) {
-    await updatePostCalculatedFields(postId); // Use the shared utility
+    await updatePostCalculatedFields(postId);
   }
-  return { success: true, message: "Vote processed." }; 
+  return { success: true, message: "Vote processed." };
 }

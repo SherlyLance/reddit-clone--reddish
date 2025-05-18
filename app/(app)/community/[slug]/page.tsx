@@ -10,11 +10,11 @@ import { currentUser } from "@clerk/nextjs/server";
 import { type NextPage } from "next";
 
 interface CommunityPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const CommunityPage: NextPage<CommunityPageProps> = async ({ params }) => {
-  const { slug } = params;
+  const { slug } = await params; // Unwrap the Promise
   const { userId } = await auth();
 
   const community = await getSubredditBySlug(slug);

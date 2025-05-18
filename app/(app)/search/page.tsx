@@ -40,11 +40,8 @@ interface UserResult {
   image?: string | null;
 }
 
-export default async function SearchResultsPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function SearchResultsPage(props: any) {
+  const { searchParams = {} } = props;
   const query = Array.isArray(searchParams?.q) ? searchParams.q[0] : searchParams?.q;
 
   if (!query || query.trim() === "") {

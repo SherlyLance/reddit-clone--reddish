@@ -6,10 +6,9 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
-import { GetAllPostsQueryResult } from "@/sanity.types";
 
 // Reusable component to display a list of posts
-function DisplayPosts({ posts, userId }: { posts: GetAllPostsQueryResult; userId: string | null }) {
+function DisplayPosts({ posts, userId }: { posts: any[]; userId: string | null }) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts found.</p>;
   }
@@ -22,14 +21,12 @@ function DisplayPosts({ posts, userId }: { posts: GetAllPostsQueryResult; userId
   );
 }
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+// Use the standard Next.js App Router page props pattern
+export default async function Home(props: any) {
+  const { searchParams = {} } = props;
   const { userId } = await auth();
-  const sort = searchParams?.sort || "new";
-  let posts = [];
+  const sort = searchParams.sort || "new";
+  let posts: any[] = [];
   let pageTitle = "Recent posts from all communities";
 
   try {
