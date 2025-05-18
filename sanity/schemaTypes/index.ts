@@ -4,7 +4,8 @@ import { postType } from "./postType";
 import { commentType } from "./commentType";
 import { voteType } from "./voteType";
 import { subredditType } from "./subredditType";
+import { communityMembershipType } from "./communityMembership";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [userType, postType, commentType, voteType, subredditType],
+  types: [userType, postType, commentType, voteType, subredditType, communityMembershipType],
 };

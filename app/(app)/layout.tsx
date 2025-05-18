@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/header/Header";
 import { SanityLive } from "@/sanity/lib/live";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,6 +62,7 @@ export default function RootLayout({
             </SidebarProvider>
 
             <SanityLive />
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

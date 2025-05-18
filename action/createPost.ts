@@ -10,6 +10,8 @@ import { createClerkToolkit } from "@clerk/agent-toolkit/ai-sdk";
 import { openai } from "@ai-sdk/openai";
 import { censorPost, reportUser } from "@/tools/tools";
 import { systemPrompt } from "@/tools/prompt";
+import { client } from "@/sanity/lib/client";
+import { isCommunityMember } from "./communityMembership";
 
 export type PostImageData = {
   base64: string;
@@ -60,6 +62,12 @@ export async function createPost({
     }
     console.log(`Found subreddit: ${subreddit._id}`);
 
+    // Check if user is a member of the community
+    const isMember = await isCommunityMember(subreddit._id);
+    if (!isMember) {
+      return { error: "You must be a member of this community to post" };
+    }
+
     // Prepare image data if provided
     let imageAsset;
     if (imageBase64 && imageFilename && imageContentType) {
@@ -96,6 +104,14 @@ export async function createPost({
     const postDoc: Partial<Post> = {
       _type: "post",
       title,
+      author: {
+        _type: "reference",
+        _ref: user._id,
+      },
+      subreddit: {
+        _type: "reference",
+        _ref: subreddit._id,
+      },
       body: body
         ? [
             {
@@ -111,32 +127,26 @@ export async function createPost({
             },
           ]
         : undefined,
-      author: {
-        _type: "reference",
-        _ref: user._id,
-      },
-      subreddit: {
-        _type: "reference",
-        _ref: subreddit._id,
-      },
       publishedAt: new Date().toISOString(),
+      upvotes: [],
+      downvotes: [],
+      score: 0,
+      isDeleted: false,
+      isReported: false,
+      ...(imageAsset && { 
+        image: {
+          _type: "image",
+          asset: {
+            _type: "reference",
+            _ref: imageAsset._id,
+          },
+        }
+      }),
     };
 
-    // Add image if available
-    if (imageAsset) {
-      console.log(`Adding image reference to post: ${imageAsset._id}`);
-      postDoc.image = {
-        _type: "image",
-        asset: {
-          _type: "reference",
-          _ref: imageAsset._id,
-        },
-      };
-    }
-
     console.log("Creating post in Sanity database");
-    const post = await adminClient.create(postDoc as Post);
-    console.log(`Post created successfully with ID: ${post._id}`);
+    const createdPost = await adminClient.create(postDoc as Post);
+    console.log(`Post created successfully with ID: ${createdPost._id}`);
 
     // Call the content moderation API
     // ----- MOD STEP ----
@@ -146,7 +156,7 @@ export async function createPost({
     const messages: CoreMessage[] = [
       {
         role: "user",
-        content: `I posted this post -> Post ID: ${post._id}\nTitle: ${title}\nBody: ${body}`,
+        content: `I posted this post -> Post ID: ${createdPost._id}\nTitle: ${title}\nBody: ${body}`,
       },
     ];
 
@@ -176,9 +186,9 @@ export async function createPost({
 
     // ----- END MOD STEP ----
 
-    console.log("Post creation process completed successfully", post);
+    console.log("Post creation process completed successfully", createdPost);
 
-    return { post };
+    return { post: createdPost };
   } catch (error) {
     console.error("Error creating post:", error);
     return { error: "Failed to create post" };

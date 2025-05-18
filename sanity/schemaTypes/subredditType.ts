@@ -60,11 +60,27 @@ export const subredditType = defineType({
       initialValue: () => new Date().toISOString(),
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: "memberCount",
+      title: "Member Count",
+      type: "number",
+      description: "Total number of members in this subreddit",
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {
       title: "title",
       media: "image",
+      memberCount: "memberCount"
+    },
+    prepare({ title, media, memberCount }) {
+      return {
+        title: title,
+        subtitle: memberCount !== undefined ? `${memberCount} member(s)` : '0 members',
+        media: media,
+      };
     },
   },
 });
