@@ -1,36 +1,25 @@
 "use client";
 
-import {
-  GetCommentRepliesQueryResult,
-  GetPostCommentsQueryResult,
-} from "@/sanity.types";
-import { getCommentReplies } from "@/sanity/lib/comment/getCommentReplies";
 import { UserCircle } from "lucide-react";
-import Image from "next/image";
-import React from "react";
 import TimeAgo from "../TimeAgo";
-import CommentList from "./CommentList";
 import CommentReply from "./CommentReply";
-import PostVoteButtons from "../post/PostVoteButtons";
 import ReportButton from "../ReportButton";
 import DeleteButton from "../DeleteButton";
+import { useState } from "react";
 
-async function Comment({
-  postId,
-  comment,
+function CommentUI({ 
+  comment, 
   userId,
-}: {
-  postId: string;
-  comment:
-    | GetPostCommentsQueryResult[number]
-    | GetCommentRepliesQueryResult[number];
-  userId: string | null;
+  postId
 }) {
-  const replies = await getCommentReplies(comment._id, userId);
-  const userVoteStatus = comment.votes.voteStatus;
+  const [isReplying, setIsReplying] = useState(false);
+
+  const handleReply = () => {
+    setIsReplying(!isReplying);
+  };
 
   return (
-    <div className="border-l border-border pl-4 py-2 my-2">
+    <>
       <div className="relative mb-1">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground pr-24">
           <a href={`/u/${comment.author?.username}`} className="font-medium">
@@ -62,16 +51,9 @@ async function Comment({
       
       <div className="text-sm mt-1">{comment.content}</div>
 
-      <CommentReply postId={postId} comment={comment} />
-
-      {/* Comment replies - supports infinite nesting */}
-      {replies?.length > 0 && (
-        <div className="mt-3 ps-2 border-s-2 border-border">
-          <CommentList postId={postId} comments={replies} userId={userId} />
-        </div>
-      )}
-    </div>
+      {isReplying && <CommentReply postId={postId} comment={comment} />}
+    </>
   );
 }
 
-export default Comment;
+export default CommentUI; 

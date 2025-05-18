@@ -25,13 +25,13 @@ const CommunityPage: NextPage<CommunityPageProps> = async ({ params }) => {
   const members = await getCommunityMembers(community._id);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 py-6 md:py-8">
       {/* Community Banner */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 mb-6">
         <div className="flex items-center gap-4">
           {community?.image && community.image.asset?._ref && (
             <Image
-              className="w-16 h-16 rounded-full"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-full"
               src={urlFor(community.image).url()}
               alt={community.image.alt || `${community.title} community icon`}
               width={64}
@@ -40,7 +40,7 @@ const CommunityPage: NextPage<CommunityPageProps> = async ({ params }) => {
           )}
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">{community?.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">{community?.title}</h1>
               <JoinCommunityButton communityId={community._id} />
             </div>
             {community?.description && (
@@ -53,7 +53,7 @@ const CommunityPage: NextPage<CommunityPageProps> = async ({ params }) => {
       </div>
 
       {/* Posts */}
-      <div className="space-y-4">
+      <div className="space-y-4 md:space-y-6">
         {posts.length > 0 ? (
           posts.map((post) => (
             <Post key={post._id} post={post} userId={userId} />

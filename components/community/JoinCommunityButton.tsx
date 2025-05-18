@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -17,26 +17,37 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
   const [isMember, setIsMember] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const checkMembership = async () => {
-      if (user) {
-        try {
-          const res = await fetch(`/api/community/${communityId}/membership`, { credentials: 'include' });
-          if (!res.ok) throw new Error('Failed to check membership status');
-          const data = await res.json();
-          setIsMember(data.isMember);
-        } catch (error) {
-          console.error('Error checking membership:', error);
-          toast({
-            title: "Error",
-            description: "Could not check your membership status",
-            variant: "destructive",
-          });
-        }
+  const checkMembership = useCallback(async () => {
+    if (user) {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/community/${communityId}/membership`, { 
+          credentials: 'include',
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        if (!res.ok) throw new Error('Failed to check membership status');
+        const data = await res.json();
+        setIsMember(data.isMember);
+      } catch (error) {
+        console.error('Error checking membership:', error);
+        toast({
+          title: "Error",
+          description: "Could not check your membership status",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
-    };
-    checkMembership();
+    }
   }, [user, communityId, toast]);
+
+  useEffect(() => {
+    checkMembership();
+  }, [checkMembership]);
 
   const handleJoinLeave = async () => {
     if (!user) {
@@ -50,34 +61,29 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
     setIsLoading(true);
 
     try {
-      let response;
-      if (isMember) {
-        // Leave community
-        response = await fetch(`/api/community/${communityId}/leave`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: 'include',
-        });
-      } else {
-        // Join community
-        response = await fetch(`/api/community/${communityId}/join`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: 'include',
-        });
-      }
+      const action = isMember ? 'leave' : 'join';
+      
+      const response = await fetch(`/api/community/${communityId}/${action}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        credentials: 'include',
+        cache: 'no-cache'
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Action failed");
       }
 
-      // Toggle membership state on success
+      // Immediately update UI state
       setIsMember(!isMember);
+      
+      // Force router to revalidate data
+      router.refresh();
       
       toast({
         title: isMember ? "Left community" : "Joined community",
@@ -92,6 +98,9 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
         description: error instanceof Error ? error.message : "Could not process your request",
         variant: "destructive",
       });
+      
+      // Re-check membership status from the server to ensure UI is in sync
+      checkMembership();
     } finally {
       setIsLoading(false);
     }

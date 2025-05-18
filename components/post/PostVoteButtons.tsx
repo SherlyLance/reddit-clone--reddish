@@ -101,7 +101,14 @@ function PostVoteButtons({
     });
   };
 
-  return (
+  // Parent component now decides the layout direction
+  // In desktop mode (parent block), we use flex-col
+  // In mobile mode (parent hidden), we use inline buttons
+  const isParentBlock = window?.getComputedStyle(document.querySelector('.sm\\:block') || document.body).display !== 'none';
+  
+  // Use a div for mobile (horizontal) and desktop (vertical) layouts
+  return isParentBlock ? (
+    // Desktop vertical layout
     <div className="flex flex-col items-center bg-muted/50 dark:bg-muted/10 p-2 rounded-l-md transition-all duration-200">
       <button
         disabled={!isSignedIn || isPending || !user}
@@ -143,6 +150,49 @@ function PostVoteButtons({
         />
       </button>
     </div>
+  ) : (
+    // Mobile horizontal layout
+    <>
+      <button
+        disabled={!isSignedIn || isPending || !user}
+        onClick={handleUpvote}
+        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+          optimisticVote === "upvote" 
+            ? "bg-orange-100 dark:bg-orange-900/20" 
+            : "hover:bg-accent dark:hover:bg-accent/20"
+        } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        <ArrowUp
+          className={`w-5 h-5 transition-all duration-200 ${
+            optimisticVote === "upvote"
+              ? "text-orange-500 dark:text-orange-400 font-bold"
+              : "text-muted-foreground hover:text-orange-500 dark:hover:text-orange-400"
+          }`}
+        />
+      </button>
+
+      <span className="text-sm font-medium text-foreground transition-all duration-200 px-1">
+        {optimisticScore}
+      </span>
+
+      <button
+        disabled={!isSignedIn || isPending || !user}
+        onClick={handleDownvote}
+        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+          optimisticVote === "downvote" 
+            ? "bg-blue-100 dark:bg-blue-900/20" 
+            : "hover:bg-accent dark:hover:bg-accent/20"
+        } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        <ArrowDown
+          className={`w-5 h-5 transition-all duration-200 ${
+            optimisticVote === "downvote"
+              ? "text-blue-500 dark:text-blue-400 font-bold"
+              : "text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400"
+          }`}
+        />
+      </button>
+    </>
   );
 }
 

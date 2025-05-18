@@ -42,4 +42,7 @@ export async function POST(
       { status: 500 }
     );
   }
-} 
+}
+
+// Add this to prevent caching
+export const dynamic = 'force-dynamic'; 

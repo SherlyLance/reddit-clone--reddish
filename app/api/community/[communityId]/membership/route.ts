@@ -12,7 +12,13 @@ export async function GET(
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required', isMember: false }, 
-        { status: 401 }
+        { 
+          status: 401,
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }
       );
     }
 
@@ -21,17 +27,40 @@ export async function GET(
     if (!communityId) {
       return NextResponse.json(
         { error: 'Community ID is required', isMember: false }, 
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }
       );
     }
     
     const isMember = await isCommunityMember(communityId);
-    return NextResponse.json({ isMember });
+    return NextResponse.json(
+      { isMember },
+      { 
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      }
+    );
   } catch (error) {
     console.error('Error in check membership API:', error);
     return NextResponse.json(
       { error: 'Failed to check membership status', isMember: false }, 
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      }
     );
   }
-} 
+}
+
+// Add this to prevent caching
+export const dynamic = 'force-dynamic'; 
