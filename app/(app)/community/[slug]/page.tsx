@@ -7,15 +7,15 @@ import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { getCommunityMembers } from "@/action/communityMembership";
 
-// Define props type for the page component
-interface CommunityPageProps {
-  params: { slug: string };
-  // searchParams could be added here if the page uses them, e.g.:
-  // searchParams?: { [key: string]: string | string[] | undefined };
+interface Props {
+  params: {
+    slug: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-async function CommunityPage({ params }: CommunityPageProps) { // Use the defined props type
-  const { slug } = params; // Destructure slug from params
+export default async function CommunityPage({ params, searchParams }: Props) {
+  const { slug } = params;
   const { userId } = await auth();
   const community = await getSubredditBySlug(slug);
   if (!community) return null;
@@ -74,5 +74,3 @@ async function CommunityPage({ params }: CommunityPageProps) { // Use the define
     </div>
   );
 }
-
-export default CommunityPage;
