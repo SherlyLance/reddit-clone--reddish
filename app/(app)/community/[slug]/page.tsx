@@ -64,13 +64,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
       {/* Posts */}
       <div className="space-y-4">
         {posts.length > 0 ? (
-              posts.map((post) => (
-                <Post key={post._id} post={post} userId={userId} />
-              ))
-            ) : (
-              <div className="bg-white rounded-md p-6 text-center">
-                <p className="text-gray-500">No posts in this community yet.</p>
-              </div>
+          posts.map((post) => <Post key={post._id} post={post} userId={userId} />)
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center">
+            <p className="text-gray-500">No posts in this community yet.</p>
+          </div>
         )}
       </div>
     </div>
