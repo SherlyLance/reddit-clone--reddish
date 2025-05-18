@@ -7,14 +7,17 @@ import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { getCommunityMembers } from "@/action/communityMembership";
 
-export default async function Page({
-  params,
-}: {
-  params: { slug: string };
-}) {
+type PageProps = {
+  params: {
+    slug: string;
+  };
+};
+
+export default async function Page({ params }: PageProps) {
   const { slug } = params;
   const { userId } = await auth();
   const community = await getSubredditBySlug(slug);
+
   if (!community) return null;
 
   const posts = await getPostsForSubreddit(community._id);
