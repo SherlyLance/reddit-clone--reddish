@@ -4,7 +4,7 @@ import { defineQuery } from "groq";
 // This query fetches posts and orders them by score
 // It includes fields necessary for the Post component and for ranking
 const getPopularPostsQuery = defineQuery(`
-  *[_type == "post" && isDeleted != true && defined(score)] {
+  *[_type == "post" && isDeleted != true && defined(upvoteCount)] {
     _id,
     title,
     "slug": slug.current,
@@ -27,7 +27,7 @@ const getPopularPostsQuery = defineQuery(`
     commentCount,
     score,
     isDeleted
-  } | order(score desc)
+  } | order(upvoteCount desc)
 `);
 
 export async function getPopularPosts() {

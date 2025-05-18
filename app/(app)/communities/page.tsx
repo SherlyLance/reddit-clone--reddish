@@ -38,36 +38,34 @@ export default async function BrowseCommunitiesPage() {
           {communities && communities.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {communities.map((community) => (
-                <Link key={community._id} href={`/community/${community.slug}`} legacyBehavior passHref>
-                  <a className="block hover:no-underline">
-                    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200 ease-in-out">
-                      <CardHeader className="flex flex-row items-center space-x-4">
-                        <Avatar className="h-12 w-12">
-                          {community.image && urlFor(community.image)?.url() ? (
-                            <AvatarImage src={urlFor(community.image).width(48).height(48).fit('crop').url()} alt={community.title || 'avatar'} />
-                          ) : null}
-                          <AvatarFallback className="text-lg">
-                            {community.title ? community.title.charAt(0).toUpperCase() : 'C'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-xl truncate">
-                            c/{community.title}
-                          </CardTitle>
-                          {community.memberCount !== null && community.memberCount !== undefined && (
-                            <p className="text-xs text-muted-foreground">
-                              {community.memberCount} member{community.memberCount === 1 ? '' : 's'}
-                            </p>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-grow">
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {community.description || "No description available."}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </a>
+                <Link key={community._id} href={`/community/${community.slug}`} className="block hover:no-underline">
+                  <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200 ease-in-out">
+                    <CardHeader className="flex flex-row items-center space-x-4">
+                      <Avatar className="h-12 w-12">
+                        {community.image && urlFor(community.image)?.url() ? (
+                          <AvatarImage src={urlFor(community.image).width(48).height(48).fit('crop').url()} alt={community.title || 'avatar'} />
+                        ) : null}
+                        <AvatarFallback className="text-lg">
+                          {community.title ? community.title.charAt(0).toUpperCase() : 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl truncate">
+                          c/{community.title}
+                        </CardTitle>
+                        {community.memberCount !== null && community.memberCount !== undefined && (
+                          <p className="text-xs text-muted-foreground">
+                            {community.memberCount} member{community.memberCount === 1 ? '' : 's'}
+                          </p>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        {community.description || "No description available."}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </Link>
               ))}
             </div>

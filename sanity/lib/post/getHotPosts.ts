@@ -5,7 +5,7 @@ import { defineQuery } from "groq";
 const getHotPostsQuery = defineQuery(`
   *[_type == "post" && 
     isDeleted != true && 
-    defined(score) && 
+    defined(commentCount) && 
     publishedAt > now() - 60*60*24*7 // 7 days ago in seconds
   ] {
     _id,
@@ -30,7 +30,7 @@ const getHotPostsQuery = defineQuery(`
     commentCount,
     score,
     isDeleted
-  } | order(score desc)
+  } | order(commentCount desc)
 `);
 
 export async function getHotPosts() {
