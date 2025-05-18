@@ -41,6 +41,15 @@ An AI-powered Reddit clone with real-time updates, community features, and smart
 * **Built-in theme switcher**
 
 ---
+## 💻 Built With
+
+* 🧩 Next.js 15
+* 🧾 Sanity CMS
+* 🔐 Clerk Auth
+* 🎨 Tailwind CSS + Radix UI
+* 🌙 Theme support
+
+---
 
 ## ⚡ Quick Start
 
@@ -75,21 +84,3 @@ OPENAI_API_KEY=...
 ---
 
 
-## 🔐 Clerk
-
-* Create a Clerk app
-* Set redirect URLs
-* Paste keys into `.env.local`
-
----
-
-## 💻 Built With
-
-* 🧩 Next.js 15
-* 🧠 OpenAI API
-* 🧾 Sanity CMS
-* 🔐 Clerk Auth
-* 🎨 Tailwind CSS + Radix UI
-* 🌙 Theme support
-
----
