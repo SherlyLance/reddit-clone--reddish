@@ -38,8 +38,7 @@
 * **Clerk** – Authentication & user profiles
 * **Tailwind CSS + Radix UI** – For styling and accessibility
 * **Turbopack** – Blazing fast development experience
-* **OpenAI API** – Optional enhancements with AI
-
+* **Vercel** - Deployment 
 ---
 
 ## 💻 Built With
@@ -105,5 +104,5 @@ Building this Reddit clone taught me:
 
 ---
 ##  Url 
-[Visit my Project](reddish-one.vercel.app)
+[Visit my Project](https://reddish-one.vercel.app/)
 
