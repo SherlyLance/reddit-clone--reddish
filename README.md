@@ -104,6 +104,6 @@ Building this Reddit clone taught me:
 * Leveraging **OpenAI API** for potential AI-powered features (like content suggestions or moderation tools)
 
 ---
-## Project Url 
-reddish-one.vercel.app
+##  Url 
+[Visit my Project](reddish-one.vercel.app)
 
