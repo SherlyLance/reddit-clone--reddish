@@ -102,43 +102,39 @@ function PostVoteButtons({
   };
 
   return (
-    <div className="flex flex-col items-center bg-muted/50 dark:bg-muted/10 p-2 rounded-l-md transition-all duration-200">
+    <div className="flex flex-col items-center bg-gray-50 p-2 rounded-l-md">
       <button
         disabled={!isSignedIn || isPending || !user}
         onClick={handleUpvote}
-        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
-          optimisticVote === "upvote" 
-            ? "bg-orange-100 dark:bg-orange-900/20" 
-            : "hover:bg-accent dark:hover:bg-accent/20"
+        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed ${
+          optimisticVote === "upvote" ? "bg-orange-100" : "hover:bg-gray-100"
         } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <ArrowUp
-          className={`w-5 h-5 transition-all duration-200 ${
+          className={`w-5 h-5 ${
             optimisticVote === "upvote"
-              ? "text-orange-500 dark:text-orange-400 font-bold"
-              : "text-muted-foreground hover:text-orange-500 dark:hover:text-orange-400"
+              ? "text-orange-500 font-bold"
+              : "text-gray-400 hover:text-orange-500"
           }`}
         />
       </button>
 
-      <span className="text-sm font-medium text-foreground transition-all duration-200">
+      <span className="text-sm font-medium text-gray-900">
         {optimisticScore}
       </span>
 
       <button
         disabled={!isSignedIn || isPending || !user}
         onClick={handleDownvote}
-        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
-          optimisticVote === "downvote" 
-            ? "bg-blue-100 dark:bg-blue-900/20" 
-            : "hover:bg-accent dark:hover:bg-accent/20"
+        className={`p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed ${
+          optimisticVote === "downvote" ? "bg-blue-100" : "hover:bg-gray-100"
         } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <ArrowDown
-          className={`w-5 h-5 transition-all duration-200 ${
+          className={`w-5 h-5 ${
             optimisticVote === "downvote"
-              ? "text-blue-500 dark:text-blue-400 font-bold"
-              : "text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400"
+              ? "text-blue-500 font-bold"
+              : "text-gray-400 hover:text-blue-500"
           }`}
         />
       </button>

@@ -38,21 +38,9 @@ export async function addComment({
     // Create the comment in Sanity
     const comment = await adminClient.create(commentData);
 
-    // After successfully creating the comment, increment the commentCount on the post
-    if (comment && comment._id) {
-      await adminClient
-        .patch(postId)
-        .inc({ commentCount: 1 })
-        .commit({ autoGenerateArrayKeys: true });
-      console.log(`Incremented comment count for post ${postId}`);
-    } else {
-      console.warn(`Comment creation might have failed for post ${postId}, not incrementing count.`);
-    }
-
     return { comment };
   } catch (error) {
     console.error("Error adding comment:", error);
-    // Consider if the commentCount increment should be reverted or handled differently on error
     return { error: "Failed to add comment" };
   }
 }

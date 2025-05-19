@@ -19,13 +19,13 @@ async function CommentList({
     <section className="mt-8">
       <div className="flex items-center justify-between">
         {isRootComment && (
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-gray-900">
             Comments ({comments.length})
           </h2>
         )}
       </div>
 
-      <div className="divide-y divide-border rounded-lg bg-card">
+      <div className="divide-y divide-gray-100 rounded-lg bg-white">
         {comments.length > 0 ? (
           comments.map((comment) => (
             <Comment
@@ -37,7 +37,7 @@ async function CommentList({
           ))
         ) : (
           <div className="py-8 text-center">
-            <p className="text-muted-foreground">
+            <p className="text-gray-500">
               No comments yet. Be the first to comment!
             </p>
           </div>

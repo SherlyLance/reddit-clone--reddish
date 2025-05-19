@@ -16,18 +16,6 @@ export const postType = defineType({
       validation: (rule) => rule.required().max(300),
     }),
     defineField({
-      name: "slug",
-      title: "Slug",
-      type: "slug",
-      options: {
-        source: "title",
-        maxLength: 96,
-        isUnique: (value, context) => context.defaultIsUnique(value, context),
-      },
-      validation: (rule) => rule.required(),
-      description: "The unique URL-friendly identifier for the post, generated from the title."
-    }),
-    defineField({
       name: "originalTitle",
       title: "Original Title",
       type: "string",
@@ -72,38 +60,6 @@ export const postType = defineType({
       ],
     }),
     defineField({
-      name: "upvoteCount",
-      title: "Upvote Count",
-      type: "number",
-      description: "Number of upvotes this post has received",
-      initialValue: 0,
-      readOnly: true,
-    }),
-    defineField({
-      name: "downvoteCount",
-      title: "Downvote Count",
-      type: "number",
-      description: "Number of downvotes this post has received",
-      initialValue: 0,
-      readOnly: true,
-    }),
-    defineField({
-      name: "score",
-      title: "Score",
-      type: "number",
-      description: "Calculated score (upvotes - downvotes)",
-      initialValue: 0,
-      readOnly: true,
-    }),
-    defineField({
-      name: "commentCount",
-      title: "Comment Count",
-      type: "number",
-      description: "Number of comments on this post",
-      initialValue: 0,
-      readOnly: true,
-    }),
-    defineField({
       name: "isReported",
       title: "Is Reported",
       type: "boolean",
@@ -131,14 +87,11 @@ export const postType = defineType({
       title: "title",
       subtitle: "author.username",
       media: "image",
-      score: "score",
-      upvoteCount: "upvoteCount",
-      commentCount: "commentCount",
     },
-    prepare({ title, subtitle, media, score, upvoteCount, commentCount }) {
+    prepare({ title, subtitle, media }) {
       return {
-        title: `${title} (Score: ${score || 0})`,
-        subtitle: `${subtitle || 'User'} • ${upvoteCount || 0} upvotes • ${commentCount || 0} comments`,
+        title,
+        subtitle,
         media,
       };
     },

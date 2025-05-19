@@ -1,41 +1,46 @@
 import { defineQuery } from "next-sanity";
 import { adminClient } from "../adminClient";
 import { sanityFetch } from "../live";
-import { updatePostCalculatedFields } from "./utils"; // Import the shared utility
 
 export async function upvotePost(postId: string, userId: string) {
-  const existingVoteQuery = defineQuery(
+  // Check if user has already voted on this post
+  const existingVoteUpvoteQuery = defineQuery(
     `*[_type == "vote" && post._ref == $postId && user._ref == $userId][0]`
   );
-  const existingVoteResult = await sanityFetch({ query: existingVoteQuery, params: { postId, userId }});
-  const existingVote = existingVoteResult.data;
+  const existingVote = await sanityFetch({
+    query: existingVoteUpvoteQuery,
+    params: { postId, userId },
+  });
 
-  let operationCompleted = false;
+  if (existingVote.data) {
+    const vote = existingVote.data;
 
-  if (existingVote) {
-    if (existingVote.voteType === "upvote") {
-      await adminClient.delete(existingVote._id);
-      operationCompleted = true;
-      console.log(`User ${userId} removed upvote for post ${postId}`);
-    } else if (existingVote.voteType === "downvote") {
-      await adminClient.patch(existingVote._id).set({ voteType: "upvote" }).commit();
-      operationCompleted = true;
-      console.log(`User ${userId} changed downvote to upvote for post ${postId}`);
+    // If there's already an upvote, remove it (toggle off)
+    if (vote.voteType === "upvote") {
+      return await adminClient.delete(vote._id);
     }
-  } else {
-    await adminClient.create({
-      _type: "vote",
-      post: { _type: "reference", _ref: postId },
-      user: { _type: "reference", _ref: userId },
-      voteType: "upvote",
-      createdAt: new Date().toISOString(),
-    });
-    operationCompleted = true;
-    console.log(`User ${userId} upvoted post ${postId}`);
+
+    // If there's a downvote, change it to an upvote
+    if (vote.voteType === "downvote") {
+      return await adminClient
+        .patch(vote._id)
+        .set({ voteType: "upvote" })
+        .commit();
+    }
   }
 
-  if (operationCompleted) {
-    await updatePostCalculatedFields(postId); // Use the shared utility
-  }
-  return { success: true, message: "Vote processed." }; 
+  // Create a new upvote
+  return await adminClient.create({
+    _type: "vote",
+    post: {
+      _type: "reference",
+      _ref: postId,
+    },
+    user: {
+      _type: "reference",
+      _ref: userId,
+    },
+    voteType: "upvote",
+    createdAt: new Date().toISOString(),
+  });
 }
