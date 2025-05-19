@@ -37,11 +37,29 @@ export async function joinCommunity(communityId: string) {
       joinedAt: new Date().toISOString(),
     });
 
-    // Increment memberCount on the community document
-    await adminClient
-      .patch(communityId)
-      .inc({ memberCount: 1 })
-      .commit({ autoGenerateArrayKeys: true });
+    // Check if the community has a memberCount field
+    const community = await adminClient.fetch(
+      `*[_type == "subreddit" && _id == $communityId][0] {
+        _id,
+        memberCount
+      }`,
+      { communityId }
+    );
+
+    // If memberCount doesn't exist or is null, set it to 1
+    // Otherwise increment it
+    if (!community || community.memberCount === undefined || community.memberCount === null) {
+      await adminClient
+        .patch(communityId)
+        .set({ memberCount: 1 })
+        .commit({ autoGenerateArrayKeys: true });
+    } else {
+      // Increment memberCount on the community document
+      await adminClient
+        .patch(communityId)
+        .inc({ memberCount: 1 })
+        .commit({ autoGenerateArrayKeys: true });
+    }
 
     return { membership };
   } catch (error) {
@@ -70,11 +88,29 @@ export async function leaveCommunity(communityId: string) {
 
     await adminClient.delete(membership._id);
 
-    // Decrement memberCount on the community document
-    await adminClient
-      .patch(communityId)
-      .dec({ memberCount: 1 })
-      .commit({ autoGenerateArrayKeys: true });
+    // Check if the community has a memberCount field
+    const community = await adminClient.fetch(
+      `*[_type == "subreddit" && _id == $communityId][0] {
+        _id,
+        memberCount
+      }`,
+      { communityId }
+    );
+
+    // Handle the memberCount update
+    if (community && typeof community.memberCount === 'number' && community.memberCount > 0) {
+      // Decrement memberCount on the community document
+      await adminClient
+        .patch(communityId)
+        .dec({ memberCount: 1 })
+        .commit({ autoGenerateArrayKeys: true });
+    } else {
+      // If memberCount doesn't exist or is already 0 or less, set it to 0
+      await adminClient
+        .patch(communityId)
+        .set({ memberCount: 0 })
+        .commit({ autoGenerateArrayKeys: true });
+    }
 
     return { success: true };
   } catch (error) {

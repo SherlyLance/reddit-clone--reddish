@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { UsersIcon } from "lucide-react";
 import Link from "next/link";
 import JoinCommunityButton from "./JoinCommunityButton";
+import { useEffect } from "react";
+import { useMemberCount } from "@/context/MemberCountContext";
 
 interface CommunityCardProps {
   community: {
@@ -21,6 +23,21 @@ interface CommunityCardProps {
 }
 
 export function CommunityCard({ community, isMember = false, className = "" }: CommunityCardProps) {
+  // Get the member count context and initialize it with the current community
+  const { getMemberCount, updateMemberCount } = useMemberCount();
+  
+  // Initialize the context with the current community's member count
+  useEffect(() => {
+    if (community._id && community.memberCount !== undefined) {
+      updateMemberCount(community._id, community.memberCount);
+    }
+    // Only re-run if the community ID or memberCount changes, NOT when updateMemberCount changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [community._id, community.memberCount]);
+  
+  // Get the current member count from the context
+  const memberCount = getMemberCount(community._id);
+  
   return (
     <Card className={`w-full community-card ${className}`}>
       <CardHeader className="pb-2">
@@ -39,7 +56,7 @@ export function CommunityCard({ community, isMember = false, className = "" }: C
             </CardTitle>
             <CardDescription className="flex items-center text-xs">
               <UsersIcon className="h-3 w-3 mr-1" />
-              {community.memberCount || 0} {(community.memberCount === 1) ? 'member' : 'members'}
+              {memberCount} {(memberCount === 1) ? 'member' : 'members'}
             </CardDescription>
           </div>
         </div>

@@ -4,6 +4,11 @@ import { sanityFetch } from "../live";
 import { adminClient } from "../adminClient";
 import { Subreddit } from "@/sanity.types";
 
+// Create an extended Subreddit type that includes memberCount
+interface SubredditWithMemberCount extends Omit<Subreddit, 'memberCount'> {
+  memberCount?: number;
+}
+
 export async function createSubreddit(
   name: string,
   moderatorId: string,
@@ -77,7 +82,7 @@ export async function createSubreddit(
     }
 
     // Create the subreddit
-    const subredditDoc: Partial<Subreddit> = {
+    const subredditDoc: Partial<SubredditWithMemberCount> = {
       _type: "subreddit",
       title: name,
       description: customDescription || `Welcome to r/${name}!`,
@@ -90,6 +95,7 @@ export async function createSubreddit(
         _ref: moderatorId,
       },
       createdAt: new Date().toISOString(),
+      memberCount: 0, // Explicitly initialize member count to zero
     };
 
     // Add image if available
@@ -103,7 +109,7 @@ export async function createSubreddit(
       };
     }
 
-    const subreddit = await adminClient.create(subredditDoc as Subreddit);
+    const subreddit = await adminClient.create(subredditDoc as any);
     console.log(`Subreddit created successfully with ID: ${subreddit._id}`);
 
     return { subreddit };

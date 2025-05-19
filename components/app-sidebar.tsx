@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FlameIcon, HomeIcon, Minus, Plus, TrendingUpIcon, UsersIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, FlameIcon, HomeIcon, Minus, Plus, TrendingUpIcon, UsersIcon } from "lucide-react";
 
 import { SearchForm } from "@/components/search-form";
 import {
@@ -29,82 +29,60 @@ import { getUserJoinedCommunities } from "@/sanity/lib/user/getUserCommunities";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { urlFor } from "@/sanity/lib/image";
+
+// Simplified shape for a Sanity slug object if it's not just a string
+interface SanitySlugShape {
+  current?: string;
+  _type?: string; // Optional, but often present
+}
 
 // Define the Subreddit type
 interface Subreddit {
   _id: string;
   title?: string;
-  slug?: string;
+  slug?: string | SanitySlugShape | null;
   description?: string;
   image?: SanityImageSource;
   memberCount?: number;
 }
 
-type SidebarData = {
-  navMain: {
-    title: string;
-    url: string;
-    items: {
-      title: string;
-      url: string;
-      isActive: boolean;
-      image?: string;
-      memberCount?: number;
-    }[];
-  }[];
-};
+// User's joined community type structure
+interface UserCommunity {
+  _id: string;
+  title?: string;
+  slug?: string | SanitySlugShape | null;
+  image?: SanityImageSource;
+  memberCount?: number;
+}
 
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  // Get all subreddits from sanity
-  const subreddits = await getSubreddits();
-  
-  // Get user's joined communities
+  const subredditsData = await getSubreddits() || [];
   const userCommunitiesResult = await getUserJoinedCommunities();
-  const userCommunities = "communities" in userCommunitiesResult 
+  const userCommunitiesData = ("communities" in userCommunitiesResult 
     ? userCommunitiesResult.communities 
-    : [];
+    : []) || [];
 
-  // Create a map of community IDs for quick lookup
+  // Cast after fetching, acknowledging potential discrepancies with precise generated types
+  const subreddits = subredditsData as Subreddit[];
+  const userCommunities = userCommunitiesData as UserCommunity[];
+
   const userCommunityIds = new Set(
-    userCommunities.map((community: { _id: string }) => community._id)
+    userCommunities.map((community) => community._id)
   );
 
-  // This is sample data.
-  const sidebarData: SidebarData = {
-    navMain: [
-      {
-        title: "Browse Communities",
-        url: "#",
-        items:
-          subreddits?.map((subreddit: Subreddit) => ({
-            title: subreddit.title || "unknown",
-            url: `/community/${subreddit.slug}`,
-            isActive: false,
-            image: subreddit.image,
-            memberCount: subreddit.memberCount || 0,
-          })) || [],
-      },
-      {
-        title: "My Communities",
-        url: "#",
-        items:
-          userCommunities?.map((community: { 
-            title?: string;
-            slug?: string;
-            image?: { asset?: { _ref?: string } };
-            memberCount?: number;
-            _id: string;
-          }) => ({
-            title: community.title || "unknown",
-            url: `/community/${community.slug}`,
-            isActive: false,
-            image: community.image,
-            memberCount: community.memberCount || 0,
-          })) || [],
-      },
-    ],
+  // Filter out joined communities from the general subreddits list for the "Browse All" section
+  const browseCommunities = subreddits.filter(
+    (subreddit) => !userCommunityIds.has(subreddit._id)
+  );
+
+  const getSlugString = (slug: string | SanitySlugShape | null | undefined): string | null => {
+    if (!slug) return null;
+    if (typeof slug === 'string') return slug;
+    if (typeof slug === 'object' && typeof slug.current === 'string') return slug.current;
+    return null;
   };
 
   return (
@@ -173,74 +151,110 @@ export async function AppSidebar({
 
         <SidebarGroup>
           <SidebarMenu>
-            {sidebarData.navMain.map((item, index) => (
-              <Collapsible
-                key={item.title}
-                defaultOpen={index === 0 || (index === 1 && userCommunities.length > 0)}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <span className="flex items-center">
-                        {item.title === "My Communities" && (
-                          <UsersIcon className="w-4 h-4 mr-2" />
+            <Collapsible
+              key="communities-collapsible"
+              // Default open if user has communities or if there are communities to browse
+              defaultOpen={userCommunities.length > 0 || browseCommunities.length > 0}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton>
+                    <span className="flex items-center">
+                      <UsersIcon className="w-4 h-4 mr-2" />
+                      Communities
+                    </span>
+                    <ChevronRightIcon className="ml-auto h-4 w-4 group-data-[state=open]/collapsible:hidden" />
+                    <ChevronDownIcon className="ml-auto h-4 w-4 group-data-[state=closed]/collapsible:hidden" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {/* My Communities Section */}
+                    {userCommunities.length > 0 && (
+                      <>
+                        {userCommunities.map((community) => {
+                          const communitySlugString = getSlugString(community.slug);
+                          return (
+                            <SidebarMenuSubItem key={community._id}>
+                              <SidebarMenuSubButton asChild isActive={false /* Add active state logic if needed */}>
+                                <Link href={communitySlugString ? `/community/${communitySlugString}` : '#'} className="flex items-center">
+                                  <Avatar className="h-6 w-6 mr-2 border border-border">
+                                    {community.image ? (
+                                      <AvatarImage 
+                                        src={urlFor(community.image).width(24).height(24).fit("crop").url()}
+                                        alt={community.title || 'community avatar'}
+                                        className="object-cover"
+                                      />
+                                    ) : null}
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
+                                      {community.title?.charAt(0).toUpperCase() || 'C'}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="flex-1 truncate">{community.title || 'Unnamed Community'}</span>
+                                  {(community.memberCount ?? 0) > 0 && (
+                                    <Badge variant="outline" className="text-xs text-muted-foreground ml-2 px-1.5 py-0">
+                                      {community.memberCount} {(community.memberCount ?? 0) === 1 ? 'member' : 'members'}
+                                    </Badge>
+                                  )}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    {/* Browse All Communities Section */}
+                    {browseCommunities.length > 0 && (
+                      <>
+                        {/* Optional: Add a divider or header if both sections are present and need separation */}
+                        {userCommunities.length > 0 && browseCommunities.length > 0 && (
+                           <div className="my-2 border-t border-border" /> // Simple divider
                         )}
-                        {item.title}
-                        {item.title === "My Communities" && userCommunities.length > 0 && (
-                          <Badge variant="secondary" className="ml-2 text-xs">
-                            {userCommunities.length}
-                          </Badge>
-                        )}
-                      </span>
-                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {item.items?.length ? (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items.map((community) => (
-                          <SidebarMenuSubItem key={community.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={community.isActive}
-                            >
-                              <Link href={community.url} className="flex items-center">
-                                <Avatar className="h-6 w-6 mr-2 border border-border">
-                                  <AvatarImage 
-                                    src={community.image} 
-                                    alt={community.title}
-                                    className="object-cover"
-                                  />
-                                  <AvatarFallback className="bg-primary text-primary-foreground">
-                                    {community.title.charAt(0).toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span className="flex-1 truncate">{community.title}</span>
-                                {(community.memberCount ?? 0) > 0 && (
-                                  <Badge variant="outline" className="text-xs text-muted-foreground ml-2 px-1.5 py-0">
-                                    {community.memberCount} {(community.memberCount ?? 0) === 1 ? 'member' : 'members'}
-                                  </Badge>
-                                )}
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  ) : (
-                    <CollapsibleContent>
-                      <div className="px-2 py-3 text-sm text-muted-foreground">
-                        {item.title === "My Communities" 
-                          ? "You haven't joined any communities yet." 
-                          : "No communities found."}
+                         <p className="px-4 py-2 text-xs text-muted-foreground">Browse All</p>
+                        {browseCommunities.map((subreddit) => {
+                          const subredditSlugString = getSlugString(subreddit.slug);
+                          return (
+                            <SidebarMenuSubItem key={subreddit._id}>
+                              <SidebarMenuSubButton asChild isActive={false /* Add active state logic if needed */}>
+                                <Link href={subredditSlugString ? `/community/${subredditSlugString}` : '#'} className="flex items-center">
+                                  <Avatar className="h-6 w-6 mr-2 border border-border">
+                                     {subreddit.image ? (
+                                      <AvatarImage 
+                                        src={urlFor(subreddit.image).width(24).height(24).fit("crop").url()}
+                                        alt={subreddit.title || 'community avatar'}
+                                        className="object-cover"
+                                      />
+                                    ) : null}
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
+                                      {subreddit.title?.charAt(0).toUpperCase() || 'C'}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="flex-1 truncate">{subreddit.title || 'Unnamed Community'}</span>
+                                  {(subreddit.memberCount ?? 0) > 0 && (
+                                    <Badge variant="outline" className="text-xs text-muted-foreground ml-2 px-1.5 py-0">
+                                      {subreddit.memberCount} {(subreddit.memberCount ?? 0) === 1 ? 'member' : 'members'}
+                                    </Badge>
+                                  )}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </>
+                    )}
+                    
+                    {/* No communities at all */}
+                    {userCommunities.length === 0 && browseCommunities.length === 0 && (
+                       <div className="px-4 py-3 text-sm text-muted-foreground">
+                        No communities found.
                       </div>
-                    </CollapsibleContent>
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
+                    )}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

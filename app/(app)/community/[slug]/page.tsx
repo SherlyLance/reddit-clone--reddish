@@ -7,7 +7,7 @@ import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { isCommunityMember } from "@/action/communityMembership";
 import { CommunityCard } from "@/components/community/CommunityCard";
-import { UsersIcon } from "lucide-react";
+import { CommunityBanner } from "@/components/community/CommunityBanner";
 import { GetPostsForSubredditQueryResult } from "@/sanity.types";
 
 async function CommunityPage({
@@ -38,54 +38,15 @@ async function CommunityPage({
 
   return (
     <>
-      {/* Community Banner */}
-      <section className="bg-card border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {community?.image && community.image.asset?._ref && (
-                <div className="relative h-16 w-16 overflow-hidden rounded-full border border-border">
-                  <Image
-                    src={urlFor(community.image).url()}
-                    alt={
-                      community.image.alt || `${community.title} community icon`
-                    }
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              )}
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">{community?.title}</h1>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <UsersIcon className="h-4 w-4 mr-1" />
-                  {community.memberCount || 0} {(community.memberCount === 1) ? 'member' : 'members'}
-                </div>
-                {community?.description && (
-                  <p className="text-sm text-muted-foreground mt-1">{community.description}</p>
-                )}
-              </div>
-            </div>
-            
-            <div className="hidden md:block">
-              <JoinCommunityButton 
-                communityId={community._id} 
-                initialIsMember={isMember}
-                size="lg"
-              />
-            </div>
-          </div>
-          
-          <div className="mt-4 md:hidden">
-            <JoinCommunityButton 
-              communityId={community._id} 
-              initialIsMember={isMember}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </section>
+      {/* Community Banner - Now using client component */}
+      <CommunityBanner 
+        community={communityData}
+        isMember={isMember}
+        imageUrl={community?.image && community.image.asset?._ref 
+          ? urlFor(community.image).url() 
+          : undefined}
+        imageAlt={community?.image?.alt || `${community.title} community icon`}
+      />
 
       {/* Posts */}
       <section className="my-8">

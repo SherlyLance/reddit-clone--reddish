@@ -60,6 +60,14 @@ export const subredditType = defineType({
       initialValue: () => new Date().toISOString(),
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: "memberCount",
+      title: "Member Count",
+      type: "number",
+      description: "How many users have joined this community",
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {

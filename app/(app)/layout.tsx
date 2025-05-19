@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/header/Header";
 import { SanityLive } from "@/sanity/lib/live";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MemberCountProvider } from "@/context/MemberCountContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,15 +36,17 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ThemeProvider>
-            <SidebarProvider defaultOpen={true}>
-              <AppSidebar variant="inset" />
+            <MemberCountProvider>
+              <SidebarProvider defaultOpen={true}>
+                <AppSidebar variant="inset" />
 
-              <SidebarInset>
-                <Header />
+                <SidebarInset>
+                  <Header />
 
-                <div className="flex flex-col">{children}</div>
-              </SidebarInset>
-            </SidebarProvider>
+                  <div className="flex flex-col">{children}</div>
+                </SidebarInset>
+              </SidebarProvider>
+            </MemberCountProvider>
 
             <SanityLive />
           </ThemeProvider>

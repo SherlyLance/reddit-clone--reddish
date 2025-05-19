@@ -7,10 +7,15 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 // Define the Subreddit type
 interface Subreddit {
   _id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  image?: SanityImageSource;
+  title: string | null;
+  slug: string | null;
+  description: string | null;
+  image: SanityImageSource | null;
+  moderator: {
+    _id: string;
+    name: string;
+  } | null;
+  createdAt: string;
   memberCount?: number;
 }
 
@@ -44,7 +49,7 @@ async function SearchPage({
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
           <ul className="flex flex-col gap-4">
-            {subreddits.map((subreddit: Subreddit) => (
+            {subreddits.map((subreddit) => (
               <li
                 key={subreddit._id}
                 className="border border-border rounded-lg overflow-hidden"

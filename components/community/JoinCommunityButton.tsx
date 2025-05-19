@@ -6,25 +6,31 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { joinCommunity, leaveCommunity, isCommunityMember } from "@/action/communityMembership";
 import { useToast } from "@/components/ui/use-toast";
+import { useMemberCount } from "@/context/MemberCountContext";
 
 interface JoinCommunityButtonProps {
   communityId: string;
   initialIsMember?: boolean;
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
+  onMembershipChange?: (isMember: boolean) => void;
 }
 
 export default function JoinCommunityButton({ 
   communityId, 
   initialIsMember = false, 
   size = "default",
-  className = ""
+  className = "",
+  onMembershipChange
 }: JoinCommunityButtonProps) {
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [isMember, setIsMember] = useState(initialIsMember);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Get the member count context
+  const { incrementMemberCount, decrementMemberCount } = useMemberCount();
 
   useEffect(() => {
     // If initialIsMember is provided, use it as the initial state
@@ -60,6 +66,14 @@ export default function JoinCommunityButton({
           throw new Error(result.error);
         }
         setIsMember(false);
+        
+        // Update the member count in the context
+        decrementMemberCount(communityId);
+        
+        // Notify parent component about membership change if callback exists
+        if (onMembershipChange) {
+          onMembershipChange(false);
+        }
         toast({
           title: "Left community",
           description: "You have successfully left the community",
@@ -70,12 +84,28 @@ export default function JoinCommunityButton({
           throw new Error(result.error);
         }
         setIsMember(true);
+        
+        // Update the member count in the context
+        incrementMemberCount(communityId);
+        
+        // Notify parent component about membership change if callback exists
+        if (onMembershipChange) {
+          onMembershipChange(true);
+        }
         toast({
           title: "Joined community",
           description: "You have successfully joined the community",
         });
       }
+      
+      // Force revalidation of the current page and cache
       router.refresh();
+      
+      // Additional step: force navigation to the same page to ensure fresh data
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/community/')) {
+        router.push(currentPath);
+      }
     } catch (error) {
       toast({
         title: "Error",

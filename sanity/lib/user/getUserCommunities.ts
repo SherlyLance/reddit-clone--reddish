@@ -22,7 +22,8 @@ export async function getUserJoinedCommunities() {
           description
         }
       }`,
-      { userId }
+      { userId },
+      { cache: "no-store" }
     );
 
     return { communities: memberships.map((m: any) => m.community) };
