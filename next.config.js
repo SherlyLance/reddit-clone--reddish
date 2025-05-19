@@ -14,7 +14,8 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["*"],
+      allowedOrigins: ["localhost:3000", "reddish.vercel.app", "*"],
+      allowedForwardedHosts: ["*"],
     },
   },
   async headers() {

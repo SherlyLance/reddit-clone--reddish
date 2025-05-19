@@ -9,6 +9,13 @@ import { isCommunityMember } from "@/action/communityMembership";
 import { CommunityCard } from "@/components/community/CommunityCard";
 import { CommunityBanner } from "@/components/community/CommunityBanner";
 import { GetPostsForSubredditQueryResult } from "@/sanity.types";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Add cache: no-store to ensure fresh data on each request
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 async function CommunityPage({
   params,
@@ -18,7 +25,16 @@ async function CommunityPage({
   const { slug } = await params;
 
   const community = await getSubredditBySlug(slug);
-  if (!community) return null;
+  if (!community) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+        <h1 className="text-2xl font-bold mb-4">Community Not Found</h1>
+        <p className="text-muted-foreground">
+          The community you're looking for doesn't exist or may have been removed.
+        </p>
+      </div>
+    );
+  }
 
   const user = await currentUser();
   const posts = await getPostsForSubreddit(community._id);
@@ -39,40 +55,52 @@ async function CommunityPage({
   return (
     <>
       {/* Community Banner - Now using client component */}
-      <CommunityBanner 
-        community={communityData}
-        isMember={isMember}
-        imageUrl={community?.image && community.image.asset?._ref 
-          ? urlFor(community.image).url() 
-          : undefined}
-        imageAlt={community?.image?.alt || `${community.title} community icon`}
-      />
+      <Suspense fallback={<div className="h-48 bg-card border-b border-border animate-pulse" />}>
+        <CommunityBanner 
+          community={communityData}
+          isMember={isMember}
+          imageUrl={community?.image && community.image.asset?._ref 
+            ? urlFor(community.image).url() 
+            : undefined}
+          imageAlt={community?.image?.alt || `${community.title} community icon`}
+        />
+      </Suspense>
 
       {/* Posts */}
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3">
-              <div className="flex flex-col gap-4">
-                {posts.length > 0 ? (
-                  posts.map((post: GetPostsForSubredditQueryResult[number]) => (
-                    <Post key={post._id} post={post} userId={user?.id || null} />
-                  ))
-                ) : (
-                  <div className="bg-card rounded-md p-6 text-center border border-border">
-                    <p className="text-muted-foreground">No posts in this community yet.</p>
-                  </div>
-                )}
-              </div>
+              <Suspense fallback={
+                <div className="flex flex-col gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-card rounded-md p-6 h-48 animate-pulse border border-border" />
+                  ))}
+                </div>
+              }>
+                <div className="flex flex-col gap-4">
+                  {posts.length > 0 ? (
+                    posts.map((post: GetPostsForSubredditQueryResult[number]) => (
+                      <Post key={post._id} post={post} userId={user?.id || null} />
+                    ))
+                  ) : (
+                    <div className="bg-card rounded-md p-6 text-center border border-border">
+                      <p className="text-muted-foreground">No posts in this community yet.</p>
+                    </div>
+                  )}
+                </div>
+              </Suspense>
             </div>
             
             {/* Sidebar with community info */}
             <div className="hidden lg:block">
               <div className="sticky top-4 space-y-4">
-                <CommunityCard 
-                  community={communityData}
-                  isMember={isMember}
-                />
+                <Suspense fallback={<div className="bg-card rounded-md p-6 h-72 animate-pulse border border-border" />}>
+                  <CommunityCard 
+                    community={communityData}
+                    isMember={isMember}
+                  />
+                </Suspense>
               </div>
             </div>
           </div>

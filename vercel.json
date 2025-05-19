@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/community/:path*", "destination": "/community/:path*" },
+    { "source": "/communities", "destination": "/communities" },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [

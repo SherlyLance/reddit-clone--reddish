@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { joinCommunity, leaveCommunity, isCommunityMember } from "@/action/communityMembership";
 import { useToast } from "@/components/ui/use-toast";
 import { useMemberCount } from "@/context/MemberCountContext";
@@ -25,6 +25,7 @@ export default function JoinCommunityButton({
 }: JoinCommunityButtonProps) {
   const { user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const [isMember, setIsMember] = useState(initialIsMember);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,14 +99,22 @@ export default function JoinCommunityButton({
         });
       }
       
-      // Force revalidation of the current page and cache
+      // Force revalidation of data
       router.refresh();
       
-      // Additional step: force navigation to the same page to ensure fresh data
-      const currentPath = window.location.pathname;
-      if (currentPath.includes('/community/')) {
-        router.push(currentPath);
-      }
+      // Use a timeout to ensure the state updates before attempting to refresh the page
+      setTimeout(() => {
+        // Only force reload if we're on a community page to avoid unwanted navigation
+        if (pathname?.includes('/community/')) {
+          // Use router.refresh() first for soft revalidation
+          router.refresh();
+          
+          // Then force a hard reload if needed for Vercel deployment
+          if (typeof window !== 'undefined') {
+            window.location.reload();
+          }
+        }
+      }, 300);
     } catch (error) {
       toast({
         title: "Error",
@@ -115,7 +124,7 @@ export default function JoinCommunityButton({
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
     <Button

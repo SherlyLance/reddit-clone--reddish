@@ -95,7 +95,7 @@ export async function createSubreddit(
         _ref: moderatorId,
       },
       createdAt: new Date().toISOString(),
-      memberCount: 0, // Explicitly initialize member count to zero
+      memberCount: 1, // Start with 1 member (the creator)
     };
 
     // Add image if available
@@ -111,6 +111,28 @@ export async function createSubreddit(
 
     const subreddit = await adminClient.create(subredditDoc as any);
     console.log(`Subreddit created successfully with ID: ${subreddit._id}`);
+
+    // Automatically add the creator as a member of the community
+    try {
+      // Create membership document
+      await adminClient.create({
+        _type: "communityMembership",
+        user: {
+          _type: "reference",
+          _ref: moderatorId,
+        },
+        community: {
+          _type: "reference",
+          _ref: subreddit._id,
+        },
+        role: "moderator", // The creator is a moderator
+        joinedAt: new Date().toISOString(),
+      });
+      console.log(`Creator (${moderatorId}) automatically joined community ${subreddit._id}`);
+    } catch (error) {
+      console.error("Error adding creator to community:", error);
+      // Don't fail the creation process if this part fails
+    }
 
     return { subreddit };
   } catch (error) {
