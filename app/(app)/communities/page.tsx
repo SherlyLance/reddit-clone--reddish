@@ -7,15 +7,15 @@ import { CommunitiesIcon } from "@/components/icons/CommunitiesIcon";
 import { urlFor } from "@/sanity/lib/image";
 import { Suspense } from "react";
 
-// Add cache: no-store to ensure fresh data on each request
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-export const revalidate = 0;
-
 // Define extended type that includes memberCount
 interface SubredditWithMemberCount extends Subreddit {
   memberCount?: number;
 }
+
+// Add cache: no-store to ensure fresh data on each request
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 // Loading fallback component
 function CommunitiesLoading() {

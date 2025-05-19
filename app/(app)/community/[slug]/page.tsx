@@ -2,7 +2,7 @@ import Post from "@/components/post/Post";
 import { urlFor } from "@/sanity/lib/image";
 import { getPostsForSubreddit } from "@/sanity/lib/subreddit/getPostsForSubreddit";
 import { getSubredditBySlug } from "@/sanity/lib/subreddit/getSubredditBySlug";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import JoinCommunityButton from "@/components/community/JoinCommunityButton";
 import { isCommunityMember } from "@/action/communityMembership";
@@ -36,10 +36,20 @@ async function CommunityPage({
     );
   }
 
-  const user = await currentUser();
+  // Get user with auth() to handle authentication
+  let user = null;
+  try {
+    const authData = await auth();
+    if (authData?.userId) {
+      user = await currentUser();
+    }
+  } catch (error) {
+    console.error("Auth error:", error);
+  }
+
   const posts = await getPostsForSubreddit(community._id);
   
-  // Check if user is a member of this community
+  // Check if user is a member of this community (only if logged in)
   const isMember = user ? await isCommunityMember(community._id) : false;
   
   // Prepare community data for the card
