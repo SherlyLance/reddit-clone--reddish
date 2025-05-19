@@ -26,7 +26,7 @@ async function Comment({
   const userVoteStatus = comment.votes.voteStatus;
 
   return (
-    <article className="py-5 border-b border-gray-100 last:border-0">
+    <article className="py-5 border-b border-border last:border-0">
       <div className="flex gap-4">
         <PostVoteButtons
           contentId={comment._id}
@@ -49,25 +49,25 @@ async function Comment({
               </div>
             ) : (
               <div className="flex-shrink-0">
-                <UserCircle className="w-10 h-10 text-gray-300" />
+                <UserCircle className="w-10 h-10 text-muted" />
               </div>
             )}
 
-            <h3 className="font-medium text-gray-900">
+            <h3 className="font-medium text-foreground">
               {comment.author?.username || "Anonymous"}
             </h3>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               <TimeAgo date={new Date(comment.createdAt!)} />
             </span>
           </div>
 
-          <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+          <p className="text-muted-foreground leading-relaxed">{comment.content}</p>
 
           <CommentReply postId={postId} comment={comment} />
 
           {/* Comment replies - supports infinite nesting */}
           {replies?.length > 0 && (
-            <div className="mt-3 ps-2 border-s-2 border-gray-100">
+            <div className="mt-3 ps-2 border-s-2 border-border">
               <CommentList postId={postId} comments={replies} userId={userId} />
             </div>
           )}

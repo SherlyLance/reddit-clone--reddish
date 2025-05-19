@@ -44,8 +44,55 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
+    
+    // Apply theme to document
     document.documentElement.classList.toggle("dark", newTheme === "dark");
+    document.documentElement.setAttribute('data-theme', newTheme);
+    
+    // Apply theme to all elements with data-theme attribute
+    document.querySelectorAll('[data-theme]').forEach(el => {
+      el.setAttribute('data-theme', newTheme);
+    });
+    
+    // Apply theme to body for global styling
+    document.body.classList.toggle('dark-theme', newTheme === "dark");
+    document.body.classList.toggle('light-theme', newTheme === "light");
+    
+    // Apply theme to specific components
+    document.querySelectorAll('.community-card').forEach(el => {
+      el.classList.toggle('dark-card', newTheme === "dark");
+      el.classList.toggle('light-card', newTheme === "light");
+    });
+    
+    // Apply theme to posts
+    document.querySelectorAll('article').forEach(el => {
+      el.classList.toggle('dark-post', newTheme === "dark");
+      el.classList.toggle('light-post', newTheme === "light");
+    });
+    
+    // Apply theme to buttons
+    document.querySelectorAll('button').forEach(el => {
+      el.classList.toggle('dark-button', newTheme === "dark");
+      el.classList.toggle('light-button', newTheme === "light");
+    });
+    
+    // Apply theme to sidebar
+    document.querySelectorAll('.sidebar').forEach(el => {
+      el.classList.toggle('dark-sidebar', newTheme === "dark");
+      el.classList.toggle('light-sidebar', newTheme === "light");
+    });
+    
+    // Apply theme to header
+    document.querySelectorAll('header').forEach(el => {
+      el.classList.toggle('dark-header', newTheme === "dark");
+      el.classList.toggle('light-header', newTheme === "light");
+    });
+    
+    // Store theme preference
     localStorage.setItem("theme", newTheme);
+    
+    // Dispatch custom event for components that need to react to theme changes
+    document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: newTheme } }));
   };
 
   // Prevent hydration mismatch

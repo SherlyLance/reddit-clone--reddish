@@ -30,7 +30,8 @@ async function Post({ post, userId }: PostProps) {
   return (
     <article
       key={post._id}
-      className="relative bg-white rounded-md shadow-sm border border-gray-200 hover:border-gray-300 transition-colors"
+      className="relative bg-card text-card-foreground rounded-md shadow-sm border border-border hover:border-accent transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-blue-500 dark:text-gray-100 post-card"
+      data-theme="auto"
     >
       <div className="flex">
         {/* Vote Buttons */}
@@ -43,7 +44,7 @@ async function Post({ post, userId }: PostProps) {
 
         {/* Post Content */}
         <div className="flex-1 p-3">
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
             {post.subreddit && (
               <>
                 <a
@@ -72,30 +73,30 @@ async function Post({ post, userId }: PostProps) {
 
           {post.subreddit && (
             <div>
-              <h2 className="text-lg font-medium text-gray-900 mb-2">
+              <h2 className="text-lg font-medium text-foreground mb-2">
                 {post.title}
               </h2>
             </div>
           )}
 
           {post.body && post.body[0]?.children?.[0]?.text && (
-            <div className="prose prose-sm max-w-none text-gray-700 mb-3">
+            <div className="prose prose-sm max-w-none text-muted-foreground mb-3 dark:prose-invert dark:text-gray-300">
               {post.body[0].children[0].text}
             </div>
           )}
 
           {post.image && post.image.asset?._ref && (
-            <div className="relative w-full h-64 mb-3 px-2 bg-gray-100/30 ">
+            <div className="relative w-full h-64 mb-3 px-2 bg-muted/30 dark:bg-gray-700/30 rounded-md">
               <Image
                 src={urlFor(post.image).url()}
                 alt={post.image.alt || "Post image"}
                 fill
-                className="object-contain rounded-md p-2"
+                className="object-contain rounded-md p-2 transition-opacity hover:opacity-95"
               />
             </div>
           )}
 
-          <button className="flex items-center px-1 py-2 gap-1 text-sm text-gray-500">
+          <button className="flex items-center px-1 py-2 gap-1 text-sm text-muted-foreground dark:text-gray-400 hover:text-primary dark:hover:text-blue-400 transition-colors">
             <MessageSquare className="w-4 h-4" />
             <span>{comments.length} Comments</span>
           </button>

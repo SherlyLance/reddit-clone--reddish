@@ -129,7 +129,7 @@ function CreatePostForm() {
             id="title"
             name="title"
             placeholder="Title of your post"
-            className="w-full focus:ring-2 focus:ring-blue-500"
+            className="w-full focus:ring-2 focus:ring-primary"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -145,7 +145,7 @@ function CreatePostForm() {
             id="body"
             name="body"
             placeholder="Text (optional)"
-            className="w-full focus:ring-2 focus:ring-blue-500"
+            className="w-full focus:ring-2 focus:ring-primary"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={5}
@@ -175,11 +175,11 @@ function CreatePostForm() {
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="post-image"
-                className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                className="flex flex-col items-center justify-center w-full h-24 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-accent"
               >
                 <div className="flex flex-col items-center justify-center">
-                  <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                  <p className="text-xs text-gray-500">
+                  <ImageIcon className="w-6 h-6 mb-2 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
                     Click to upload an image
                   </p>
                 </div>

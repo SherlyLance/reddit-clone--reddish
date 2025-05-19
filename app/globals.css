@@ -3,6 +3,106 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Theme transition effects */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Community card hover effects */
+.community-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.community-card:hover {
+  transform: translateY(-2px);
+}
+
+.dark .community-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.light .community-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Theme-specific styles */
+.dark-theme {
+  --card-hover-bg: rgba(255, 255, 255, 0.05);
+  --post-bg: #1f2937;
+  --post-border: #374151;
+  --post-text: #e5e7eb;
+  --button-hover: #374151;
+  --sidebar-bg: #111827;
+  --header-bg: #1f2937;
+}
+
+.light-theme {
+  --card-hover-bg: rgba(0, 0, 0, 0.03);
+  --post-bg: #ffffff;
+  --post-border: #e5e7eb;
+  --post-text: #1f2937;
+  --button-hover: #f3f4f6;
+  --sidebar-bg: #f9fafb;
+  --header-bg: #ffffff;
+}
+
+/* Post styles */
+.dark-post {
+  background-color: var(--post-bg);
+  border-color: var(--post-border);
+  color: var(--post-text);
+}
+
+.light-post {
+  background-color: var(--post-bg);
+  border-color: var(--post-border);
+  color: var(--post-text);
+}
+
+/* Post card styles */
+.post-card {
+  transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+}
+
+.dark .post-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.light .post-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Button styles */
+.dark-button:hover {
+  background-color: var(--button-hover);
+}
+
+/* Sidebar styles */
+.dark-sidebar {
+  background-color: var(--sidebar-bg);
+}
+
+.light-sidebar {
+  background-color: var(--sidebar-bg);
+}
+
+/* Header styles */
+.dark-header {
+  background-color: var(--header-bg);
+}
+
+.light-header {
+  background-color: var(--header-bg);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -119,4 +219,59 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom sidebar styles */
+[data-sidebar="sidebar"] {
+  width: var(--sidebar-width, 16rem) !important;
+  transition: width 0.3s ease;
+}
+
+[data-sidebar="rail"] {
+  cursor: pointer;
+}
+
+/* Ensure content adjusts when sidebar is toggled */
+[data-slot="sidebar-inset"] {
+  transition: margin-left 0.3s ease;
+}
+
+/* Ensure the header stays full width */
+header {
+  width: 100% !important;
+}
+
+/* Theme transition effects */
+body, 
+.card, 
+.sidebar, 
+.avatar, 
+.button, 
+.badge, 
+.input, 
+.textarea, 
+.dialog, 
+.dropdown-menu, 
+.popover, 
+.tooltip {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Theme toggle animation */
+.theme-toggle-icon {
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+}
+
+/* Community card hover effects */
+.community-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.community-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .community-card:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }

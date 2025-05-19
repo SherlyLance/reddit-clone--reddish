@@ -144,6 +144,16 @@ function CreateCommunityButton() {
       <DialogTrigger
         className="w-full p-2 pl-5 flex items-center rounded-md cursor-pointer bg-black text-white hover:bg-black transition-all duration-200 disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={!user}
+        data-create-community-button
+        onClick={(e) => {
+          if (!user) {
+            e.preventDefault();
+            // Redirect to sign-in page or open sign-in modal
+            if (typeof window !== 'undefined') {
+              window.location.href = '/sign-in?redirect=/create-community';
+            }
+          }
+        }}
       >
         <Plus className="w-4 h-4 mr-2" />
         {user ? "Create a Community" : "Sign in to create community"}
@@ -168,7 +178,7 @@ function CreateCommunityButton() {
                 id="name"
                 name="name"
                 placeholder="My Community"
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="w-full focus:ring-2 focus:ring-primary"
                 value={name}
                 onChange={handleNameChange}
                 required
@@ -185,7 +195,7 @@ function CreateCommunityButton() {
                 id="slug"
                 name="slug"
                 placeholder="my-community"
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="w-full focus:ring-2 focus:ring-primary"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 required
@@ -194,7 +204,7 @@ function CreateCommunityButton() {
                 pattern="[a-z0-9-]+"
                 title="Lowercase letters, numbers, and hyphens only"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 This will be used in the URL: reddish.com/community/
                 {slug || "community-slug"}
               </p>
@@ -208,7 +218,7 @@ function CreateCommunityButton() {
                 id="description"
                 name="description"
                 placeholder="What is this community about?"
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="w-full focus:ring-2 focus:ring-primary"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
@@ -241,11 +251,11 @@ function CreateCommunityButton() {
                 <div className="flex items-center justify-center w-full">
                   <label
                     htmlFor="community-image"
-                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    className="flex flex-col items-center justify-center w-full h-24 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-accent"
                   >
                     <div className="flex flex-col items-center justify-center">
-                      <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                      <p className="text-xs text-gray-500">
+                      <ImageIcon className="w-6 h-6 mb-2 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">
                         Click to upload an image
                       </p>
                     </div>

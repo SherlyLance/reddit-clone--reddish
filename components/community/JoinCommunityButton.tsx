@@ -9,24 +9,38 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface JoinCommunityButtonProps {
   communityId: string;
+  initialIsMember?: boolean;
+  size?: "default" | "sm" | "lg" | "icon";
+  className?: string;
 }
 
-export default function JoinCommunityButton({ communityId }: JoinCommunityButtonProps) {
+export default function JoinCommunityButton({ 
+  communityId, 
+  initialIsMember = false, 
+  size = "default",
+  className = ""
+}: JoinCommunityButtonProps) {
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isMember, setIsMember] = useState(false);
+  const [isMember, setIsMember] = useState(initialIsMember);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const checkMembership = async () => {
-      if (user) {
-        const membershipStatus = await isCommunityMember(communityId);
-        setIsMember(membershipStatus);
-      }
-    };
-    checkMembership();
-  }, [user, communityId]);
+    // If initialIsMember is provided, use it as the initial state
+    if (initialIsMember !== undefined) {
+      setIsMember(initialIsMember);
+    } else {
+      // Otherwise, check membership status from the server
+      const checkMembership = async () => {
+        if (user) {
+          const membershipStatus = await isCommunityMember(communityId);
+          setIsMember(membershipStatus);
+        }
+      };
+      checkMembership();
+    }
+  }, [user, communityId, initialIsMember]);
 
   const handleJoinLeave = async () => {
     if (!user) {
@@ -78,6 +92,8 @@ export default function JoinCommunityButton({ communityId }: JoinCommunityButton
       onClick={handleJoinLeave}
       disabled={isLoading}
       variant={isMember ? "outline" : "default"}
+      size={size}
+      className={className}
     >
       {isLoading ? "Loading..." : isMember ? "Leave" : "Join"}
     </Button>
