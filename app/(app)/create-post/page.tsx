@@ -3,6 +3,8 @@ import CreatePostForm from "@/components/post/CreatePostForm";
 import { SubredditCombobox } from "@/components/subreddit/SubredditCombobox";
 import { getSubreddits } from "@/sanity/lib/subreddit/getSubreddits";
 
+export const dynamic = 'force-dynamic';
+
 async function CreatePostPage({
   searchParams,
 }: {
