@@ -8,6 +8,8 @@ import { HomeFeedTabs } from "@/components/home/HomeFeedTabs";
 import { CommunitySidebar } from "@/components/community/CommunitySidebar";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Use a fixed sort value to avoid searchParams issues
   const sort = 'new'; // Default sort value
