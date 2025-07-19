@@ -148,10 +148,8 @@ function CreateCommunityButton() {
         onClick={(e) => {
           if (!user) {
             e.preventDefault();
-            // Redirect to sign-in page or open sign-in modal
-            if (typeof window !== 'undefined') {
-              window.location.href = '/sign-in?redirect=/create-community';
-            }
+            // Changed from window.location.href to router.push for Next.js routing
+            router.push('/sign-in?redirect=/create-community');
           }
         }}
       >
@@ -201,6 +199,7 @@ function CreateCommunityButton() {
                 required
                 minLength={3}
                 maxLength={21}
+                // REMOVED THE INVALID '/v' FLAG FROM THE PATTERN REGEX
                 pattern="[a-z0-9-]+"
                 title="Lowercase letters, numbers, and hyphens only"
               />
