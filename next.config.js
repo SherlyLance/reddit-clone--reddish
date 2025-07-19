@@ -14,7 +14,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "reddish.vercel.app", "*"],
+      allowedOrigins: ["localhost:3000", "reddit-clone-reddish-wixq.vercel.app", "*"],
       allowedForwardedHosts: ["*"],
     },
   },
