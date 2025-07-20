@@ -26,11 +26,11 @@ interface Subreddit {
 async function SearchPage({
   searchParams,
 }: {
-  // Revert this type definition back to Promise
+  // REVERT THIS: searchParams needs to be typed as a Promise
   searchParams: Promise<{ query: string }>;
 }) {
-  const { query } = await searchParams; // Re-add 'await' here
-  const subreddits: Subreddit[] = await searchSubreddits(query);
+  const { query } = await searchParams; // RE-ADD 'await' here
+  const subreddits: Subreddit[] = await searchSubreddits(query); // Keep explicit type for 'subreddits'
 
   return (
     <>
@@ -54,7 +54,7 @@ async function SearchPage({
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
           <ul className="flex flex-col gap-4">
-            {subreddits.map((subreddit: Subreddit) => (
+            {subreddits.map((subreddit: Subreddit) => ( // Keep explicit type for 'subreddit' in map
               <li
                 key={subreddit._id}
                 className="border border-border rounded-lg overflow-hidden"
