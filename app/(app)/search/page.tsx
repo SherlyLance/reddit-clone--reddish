@@ -1,6 +1,6 @@
 // app/(app)/search/page.tsx
 
-export const dynamic = 'force-dynamic'; // Keep this for dynamic rendering
+export const dynamic = 'force-dynamic';
 
 import { searchSubreddits } from "@/sanity/lib/subreddit/searchSubreddits";
 import Link from "next/link";
@@ -26,11 +26,10 @@ interface Subreddit {
 async function SearchPage({
   searchParams,
 }: {
-  // REVERT THIS: searchParams needs to be typed as a Promise
   searchParams: Promise<{ query: string }>;
 }) {
-  const { query } = await searchParams; // RE-ADD 'await' here
-  const subreddits: Subreddit[] = await searchSubreddits(query); // Keep explicit type for 'subreddits'
+  const { query } = await searchParams;
+  const subreddits = (await searchSubreddits(query)) as Subreddit[]; // Keep the type assertion here
 
   return (
     <>
@@ -54,7 +53,7 @@ async function SearchPage({
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
           <ul className="flex flex-col gap-4">
-            {subreddits.map((subreddit: Subreddit) => ( // Keep explicit type for 'subreddit' in map
+            {subreddits.map((subreddit: Subreddit) => ( // <-- ADDED PARENTHESES HERE
               <li
                 key={subreddit._id}
                 className="border border-border rounded-lg overflow-hidden"
