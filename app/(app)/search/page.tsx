@@ -1,3 +1,7 @@
+// app/search/page.tsx
+
+export const dynamic = 'force-dynamic';
+
 import { searchSubreddits } from "@/sanity/lib/subreddit/searchSubreddits";
 import Link from "next/link";
 import { urlFor } from "@/sanity/lib/image";
@@ -22,10 +26,14 @@ interface Subreddit {
 async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ query: string }>;
+  // Minor adjustment for correctness: searchParams in App Router are typically
+  // direct objects, not promises, for page components.
+  searchParams: { query: string }; 
 }) {
-  const { query } = await searchParams;
-  const subreddits = await searchSubreddits(query);
+  const { query } = searchParams; // Removed 'await' here to match the updated type
+  
+  // Explicitly type the result of searchSubreddits as an array of Subreddit
+  const subreddits: Subreddit[] = await searchSubreddits(query); 
 
   return (
     <>
@@ -49,7 +57,7 @@ async function SearchPage({
       <section className="my-8">
         <div className="mx-auto max-w-7xl px-4">
           <ul className="flex flex-col gap-4">
-            {subreddits.map((subreddit) => (
+            {subreddits.map((subreddit: Subreddit) => ( // <--- ADDED : Subreddit HERE
               <li
                 key={subreddit._id}
                 className="border border-border rounded-lg overflow-hidden"

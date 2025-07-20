@@ -21,7 +21,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
-import ReddishLogo from "@/images/Reddish Full.png";
+//import ReddishLogo from "@/images/Reddish Full.png";
 import Link from "next/link";
 import { getSubreddits } from "@/sanity/lib/subreddit/getSubreddits";
 import CreateCommunityButton from "./header/CreateCommunityButton";
@@ -93,7 +93,7 @@ export async function AppSidebar({
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
                 <Image
-                  src={ReddishLogo}
+                  src="/images/Reddish Full.png"
                   alt="logo"
                   width={150}
                   height={150}
